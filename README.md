@@ -3,7 +3,9 @@ This is the translation of Essentials Of Programming Languages, 3rd edition.
 
 Online reading for https://axease.github.io/eopl3_zh
 
-[TODO] kaTex Bug Fix
+- [ ] kaTex Bug Fix
+
+```
 .
 ├── eopl
 │   ├── awk.html
@@ -23,3 +25,4 @@ Online reading for https://axease.github.io/eopl3_zh
 │   ├── sllgen-parsing-system.html
 │   ├── state.html
 │   └── types.html
+```
