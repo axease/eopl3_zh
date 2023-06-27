@@ -1,0 +1,7 @@
+.Tip {
+  padding: 1ex;
+  border: 1px solid #000000;
+}
+.TipContent {
+    font-style: italic;
+}
