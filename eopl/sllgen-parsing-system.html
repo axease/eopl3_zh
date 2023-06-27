@@ -1,182 +1,1505 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta name="viewport" content="width=device-width, initial-scale=0.8"/><title>11&nbsp;SLLGEN解析系统</title><link rel="stylesheet" type="text/css" href="scribble.css" title="default"/><link rel="stylesheet" type="text/css" href="racket.css" title="default"/><link rel="stylesheet" type="text/css" href="scribble-style.css" title="default"/><script type="text/javascript" src="scribble-common.js"></script><script type="text/javascript">
-(function() {
-  document.write('<link rel="stylesheet" href="katex/katex.min.css" />');
-})();(function() {document.write('<scr' + 'ipt type="text/javascript" src="katex/katex.min.js"></scr' + 'ipt>');})();(function(f) {
-  // A "simple" onLoad function
-  if (window.document.readyState == "complete") {
-    f();
-  } else if (window.document.addEventListener) {
-    window.document.addEventListener("DOMContentLoaded", f, false);
-  } else if (window.attachEvent) {
-    window.attachEvent("onreadystatechange", function() {
-      if (window.document.readyState == "complete") {
-        f();
-      }
-    });
-  } else {
-    var oldLoad = window.onload;
-    if (typeof(oldLoad) == "function") {
-      window.onload = function() {
-        try {
-          oldLoad();
-        } finally {
-          f();
-        }
-      };
-    } else {
-      window.onload = f;
-    }
-  }
-})(function() {
-  // This is an ugly way to change the doctype, in case the scribble document
-  // did not use (with-html5).
-  if (!(document.doctype && document.doctype.publicId == '')) {
-    if (console && console.log) {
-      console.log("Re-wrote the document to use the HTML5 doctype.\n"
-                  + "  Consider using the following declaration:\n"
-                  + "      @title[#:style (with-html5 manual-doc-style)]{…}");
-    }
-    var wholeDoc = '<!doctype HTML>\n' + document.documentElement.outerHTML;
-    document.open();
-    document.clear();
-    document.write(wholeDoc);
-  }
-  var inlineElements = document.getElementsByClassName("texMathInline");
-  for (var i = 0; i < inlineElements.length; i++) {
-    var e = inlineElements[i];
-    katex.render(e.textContent, e, { displayMode:false, throwOnError:false });
-  }
-  var displayElements = document.getElementsByClassName("texMathDisplay");
-  for (var i = 0; i < displayElements.length; i++) {
-    var e = displayElements[i];
-    katex.render(e.textContent, e, { displayMode:true, throwOnError:false });
-  }
-});
-</script><!--[if IE 6]><style type="text/css">.SIEHidden { overflow: hidden; }</style><![endif]--></head><body id="scribble-racket-lang-org"><div class="tocset"><div class="tocview"><div class="tocviewlist tocviewlisttopspace"><div class="tocviewtitle"><table cellspacing="0" cellpadding="0"><tr><td style="width: 1em;"><a href="javascript:void(0);" title="Expand/Collapse" class="tocviewtoggle" onclick="TocviewToggle(this,&quot;tocview_0&quot;);">&#9660;</a></td><td></td><td><a href="index.html" class="tocviewlink" data-pltdoc="x">&#32534;&#31243;&#35821;&#35328;&#35201;&#32032;</a></td></tr></table></div><div class="tocviewsublisttop" style="display: block;" id="tocview_0"><table cellspacing="0" cellpadding="0"><tr><td align="right"></td><td><a href="fw-trans.html" class="tocviewlink" data-pltdoc="x">&#35793;&#32773;&#30340;&#35805;</a></td></tr><tr><td align="right"></td><td><a href="glo.html" class="tocviewlink" data-pltdoc="x">&#35793;&#21517;&#34920;</a></td></tr><tr><td align="right"></td><td><a href="fw.html" class="tocviewlink" data-pltdoc="x">&#24207;</a></td></tr><tr><td align="right"></td><td><a href="pf.html" class="tocviewlink" data-pltdoc="x">&#21069;&#35328;</a></td></tr><tr><td align="right"></td><td><a href="awk.html" class="tocviewlink" data-pltdoc="x">&#33268;&#35874;</a></td></tr><tr><td align="right">1&nbsp;</td><td><a href="isd.html" class="tocviewlink" data-pltdoc="x">&#24402;&#32435;&#24335;&#25968;&#25454;&#38598;</a></td></tr><tr><td align="right">2&nbsp;</td><td><a href="da.html" class="tocviewlink" data-pltdoc="x">&#25968;&#25454;&#25277;&#35937;</a></td></tr><tr><td align="right">3&nbsp;</td><td><a href="expr.html" class="tocviewlink" data-pltdoc="x">&#34920;&#36798;&#24335;</a></td></tr><tr><td align="right">4&nbsp;</td><td><a href="state.html" class="tocviewlink" data-pltdoc="x">&#29366;&#24577;</a></td></tr><tr><td align="right">5&nbsp;</td><td><a href="cpi.html" class="tocviewlink" data-pltdoc="x">&#20256;&#36882;&#32493;&#25991;&#30340;&#35299;&#37322;&#22120;</a></td></tr><tr><td align="right">6&nbsp;</td><td><a href="cps.html" class="tocviewlink" data-pltdoc="x">&#32493;&#25991;&#20256;&#36882;&#39118;&#26684;</a></td></tr><tr><td align="right">7&nbsp;</td><td><a href="types.html" class="tocviewlink" data-pltdoc="x">&#31867;&#22411;</a></td></tr><tr><td align="right">8&nbsp;</td><td><a href="modules.html" class="tocviewlink" data-pltdoc="x">&#27169;&#22359;</a></td></tr><tr><td align="right">9&nbsp;</td><td><a href="oac.html" class="tocviewlink" data-pltdoc="x">&#23545;&#35937;&#21644;&#31867;</a></td></tr><tr><td align="right">10&nbsp;</td><td><a href="further-reading.html" class="tocviewlink" data-pltdoc="x">&#25193;&#23637;&#38405;&#35835;</a></td></tr><tr><td align="right">11&nbsp;</td><td><a href="" class="tocviewselflink" data-pltdoc="x">SLLGEN&#35299;&#26512;&#31995;&#32479;</a></td></tr><tr><td align="right"></td><td><a href="bib.html" class="tocviewlink" data-pltdoc="x">&#21442;&#32771;&#20070;&#30446;</a></td></tr><tr><td align="right"></td><td><a href="indices.html" class="tocviewlink" data-pltdoc="x">&#32034;&#24341;</a></td></tr></table></div></div><div class="tocviewlist"><table cellspacing="0" cellpadding="0"><tr><td style="width: 1em;"><a href="javascript:void(0);" title="Expand/Collapse" class="tocviewtoggle" onclick="TocviewToggle(this,&quot;tocview_1&quot;);">&#9658;</a></td><td>11&nbsp;</td><td><a href="" class="tocviewselflink" data-pltdoc="x">SLLGEN&#35299;&#26512;&#31995;&#32479;</a></td></tr></table><div class="tocviewsublistbottom" style="display: none;" id="tocview_1"><table cellspacing="0" cellpadding="0"><tr><td align="right">11.1&nbsp;</td><td><a href="#%28part._.B..1%29" class="tocviewlink" data-pltdoc="x">&#25195;&#25551;</a></td></tr><tr><td align="right">11.2&nbsp;</td><td><a href="#%28part._.B..2%29" class="tocviewlink" data-pltdoc="x">&#35299;&#26512;</a></td></tr><tr><td align="right">11.3&nbsp;</td><td><a href="#%28part._.B..3%29" class="tocviewlink" data-pltdoc="x">SLLGEN &#20013;&#30340;&#25195;&#25551;&#22120;&#21644;&#35299;&#26512;&#22120;</a></td></tr></table></div></div></div><div class="tocsub"><div class="tocsubtitle">On this page:</div><table class="tocsublist" cellspacing="0"><tr><td><span class="tocsublinknumber">11.1<tt>&nbsp;</tt></span><a href="#%28part._.B..1%29" class="tocsubseclink" data-pltdoc="x">&#25195;&#25551;</a></td></tr><tr><td><span class="tocsublinknumber">11.2<tt>&nbsp;</tt></span><a href="#%28part._.B..2%29" class="tocsubseclink" data-pltdoc="x">&#35299;&#26512;</a></td></tr><tr><td><span class="tocsublinknumber">11.3<tt>&nbsp;</tt></span><a href="#%28part._.B..3%29" class="tocsubseclink" data-pltdoc="x">SLLGEN &#20013;&#30340;&#25195;&#25551;&#22120;&#21644;&#35299;&#26512;&#22120;</a></td></tr><tr><td><span class="tocsublinknumber"></span><a href="#%28part._.B..3-scanners%29" class="tocsubseclink" data-pltdoc="x">&#23450;&#20041;&#25195;&#25551;&#22120;</a></td></tr><tr><td><span class="tocsublinknumber"></span><a href="#%28part._.B..3-grammars%29" class="tocsubseclink" data-pltdoc="x">&#23450;&#20041;&#35821;&#27861;</a></td></tr><tr><td><span class="tocsublinknumber"></span><a href="#%28part._.B..3-operations%29" class="tocsubseclink" data-pltdoc="x">SLLGEN&#30340;&#25805;&#20316;</a></td></tr><tr><td><span class="tocsublinknumber"></span><a href="#%28part._.B..3-arbno%29" class="tocsubseclink" data-pltdoc="x"><span class="stt">arbno</span>
-&#21644; <span class="stt">separated-<wbr></wbr>list</span> &#27169;&#26495;&#20851;&#38190;&#23383;</a></td></tr></table></div></div><div class="maincolumn"><div class="main"><div class="navsettop"><span class="navleft"><div class="nosearchform"></div>&nbsp;&nbsp;<span class="tocsettoggle">&nbsp;&nbsp;<a href="javascript:void(0);" title="show/hide table of contents" onclick="TocsetToggle();">contents</a></span></span><span class="navright">&nbsp;&nbsp;<a href="further-reading.html" title="backward to &quot;10 扩展阅读&quot;" data-pltdoc="x">&larr; prev</a>&nbsp;&nbsp;<a href="index.html" title="up to &quot;编程语言要素&quot;" data-pltdoc="x">up</a>&nbsp;&nbsp;<a href="bib.html" title="forward to &quot;参考书目&quot;" data-pltdoc="x">next &rarr;</a></span>&nbsp;</div><h3>11<tt>&nbsp;</tt><a name="(part._sllgen-parsing-system)"></a>SLLGEN&#35299;&#26512;&#31995;&#32479;</h3><p><a name="(elem._sllgen)"></a></p><p>&#31243;&#24207;&#21482;&#26159;&#23383;&#31526;&#20018;&#12290;&#35201;&#22788;&#29702;&#31243;&#24207;&#65292;&#38656;&#35201;&#23558;&#36825;&#20123;&#23383;&#31526;&#24402;&#31867;&#20026;&#26377;&#24847;&#20041;&#30340;&#21333;&#20803;&#12290;&#36825;&#31181;&#24402;&#31867;&#36890;&#24120;&#20998;&#20026;&#20004;
-&#20010;&#38454;&#27573;&#65306;<span class="emph">&#25195;&#25551;</span> &#21644;<span class="emph">&#35299;&#26512;</span>&#12290;</p><p><a name="(idx._(gentag._1719))"></a>
-&#25195;&#25551;&#36807;&#31243;&#23558;&#23383;&#31526;&#24207;&#21015;&#20998;&#20026;&#21333;&#35789;&#65292;&#26631;&#28857;&#31561;&#31561;&#12290;&#36825;&#20123;&#21333;&#20803;&#21483;&#20570;<span class="emph">&#35789;&#26465;</span>&#12289;<span class="emph">&#35789;
-&#32032;</span>&#65292;&#25110;&#32773;&#26368;&#24120;&#35265;&#30340;<span class="emph">&#35789;&#29260;</span>&#12290;&#35299;&#26512;&#36807;&#31243;&#23558;&#35789;&#29260;&#24207;&#21015;&#32452;&#32455;&#25104;&#26377;&#23618;&#27425;&#30340;&#35821;&#27861;&#32467;&#26500;&#65292;&#22914;&#34920;
-&#36798;&#24335;&#12289;&#35821;&#21477;&#21644;&#22359;&#12290;&#36825;&#23601;&#20687;&#29992;&#20174;&#21477;&#32452;&#32455;&#21477;&#23376;&#12290;</p><p>SLLGEN &#26159;&#19968;&#20010; Scheme <span class="emph">&#25193;&#23637;&#21253;</span> (<span class="emph">package</span>)&#65292;&#29992;&#26469;&#29983;&#25104;&#35299;&#26512;&#22120;&#21644;&#25195;&#25551;&#22120;&#12290;&#22312;&#26412;&#38468;&#24405;
-&#20013;&#65292;&#25105;&#20204;&#39318;&#20808;&#20171;&#32461;&#25195;&#25551;&#21644;&#35299;&#26512;&#30340;&#22522;&#30784;&#65292;&#28982;&#21518;&#32771;&#34385;&#22914;&#20309;&#29992; SLLGEN &#23454;&#29616;&#36825;&#20123;&#21151;&#33021;&#12290;</p><h4>11.1<tt>&nbsp;</tt><a name="(part._.B..1)"></a>&#25195;&#25551;</h4><p><a name="(idx._(gentag._1720))"></a>
-&#25195;&#25551;&#38382;&#39064;&#22914;<span class="EoplFigureRef"></span> &#25152;&#31034;&#12290;&#25105;&#20204;&#22312;&#20854;&#20013;&#23637;&#31034;&#20102;&#19968;&#23567;&#27573;&#31243;&#24207;&#65292;&#20197;&#21450;&#24212;&#22914;&#20309;&#23558;&#20854;
-&#20998;&#21106;&#20026;&#22522;&#26412;&#21333;&#20803;&#12290;</p><p>&#23383;&#31526;&#27969;&#24212;&#22914;&#20309;&#20998;&#21106;&#20026;&#35789;&#26465;&#26159;&#35821;&#35328;&#35268;&#33539;&#30340;&#19968;&#37096;&#20998;&#12290;&#35821;&#35328;&#30340;&#36825;&#37096;&#20998;&#35268;&#33539;&#26377;&#26102;&#31216;&#20026;<span class="emph">&#35789;&#27861;&#35268;&#33539;</span> (<span class="emph">lexical
-specification</span>)&#12290;&#20856;&#22411;&#30340;&#35789;&#27861;&#35268;&#33539;&#21487;&#33021;&#21253;&#25324;&#65306;
-<a name="(idx._(gentag._1721))"></a></p><ul><li><p>&#20219;&#20309;&#31354;&#26684;&#21644;&#25442;&#34892;&#24207;&#21015;&#37117;&#31561;&#20215;&#20110;&#21333;&#20010;&#31354;&#26684;&#12290;</p></li><li><p>&#27880;&#37322;&#20197; <span class="stt">%</span> &#24320;&#22836;&#65292;&#21040;&#34892;&#23614;&#25130;&#27490;&#12290;</p></li><li><p>&#26631;&#35782;&#31526;&#26159;&#20197;&#23383;&#27597;&#24320;&#22836;&#30340;&#23383;&#27597;&#21644;&#25968;&#23383;&#24207;&#21015;&#12290;</p></li></ul><blockquote class="EoplFigure"><p><img src="task-of-scanner.svg" alt="扫描器的任务" width="379.5pt" height="268.5pt"/></p><blockquote class="caption"><p>&#25195;&#25551;&#22120;&#30340;&#20219;&#21153;<a name="(elem._fig-.B..1)"></a></p></blockquote></blockquote><p>&#25195;&#25551;&#22120;&#30340;&#20219;&#21153;&#26159;&#36941;&#21382;&#21644;&#20998;&#26512;&#36755;&#20837;&#65292;&#20135;&#29983;&#21547;&#26377;&#36825;&#20123;&#35789;&#26465;&#30340;&#25968;&#25454;&#32467;&#26500;&#12290;&#36890;&#24120;&#30340;&#35821;&#35328;&#20013;&#65292;&#25195;&#25551;&#22120;&#21487;
-&#33021;&#26159;&#19968;&#20010;&#36807;&#31243;&#65292;&#22312;&#35843;&#29992;&#26102;&#65292;&#30001;&#36755;&#20837;&#20135;&#29983;&#8220;&#19979;&#19968;&#20010;&#8221;&#35789;&#29260;&#12290;</p><p>&#21487;&#20197;&#20174;&#22836;&#20889;&#20986;&#19968;&#20010;&#25195;&#25551;&#22120;&#65292;&#20294;&#37027;&#21448;&#40635;&#28902;&#65292;&#21448;&#26131;&#38169;&#12290;&#26356;&#22909;&#30340;&#26041;&#24335;&#26159;&#20889;&#20986;&#25351;&#23450;&#35821;&#35328;&#30340;&#35789;&#27861;&#35268;&#33539;&#12290;
-&#36825;&#19968;&#20219;&#21153;&#26368;&#24120;&#29992;&#30340;&#35821;&#35328;&#26159;<span class="emph">&#27491;&#21017;&#34920;&#36798;&#24335;</span> (<span class="emph">regular expressions</span>)&#12290;&#27491;&#21017;&#34920;&#36798;&#24335;&#35821;&#35328;&#23450;
-&#20041;&#22914;&#19979;&#65306;<a name="(idx._(gentag._1722))"></a>
-<span class="texMathDisplay">\mathit{R} ::= \mathit{Character} \mid \mathit{RR} \mid \mathit{R} \cup \mathit{R} \mid \neg\mathit{Character}</span></p><p>&#27599;&#20010;&#27491;&#21017;&#34920;&#36798;&#24335;&#21305;&#37197;&#19968;&#20123;&#23383;&#31526;&#20018;&#12290;&#25105;&#20204;&#21487;&#20197;&#29992;&#24402;&#32435;&#27861;&#23450;&#20041;&#27599;&#20010;&#27491;&#21017;&#34920;&#36798;&#24335;&#21305;&#37197;&#30340;&#23383;&#31526;&#20018;&#38598;&#21512;&#12290;</p><ul><li><p>&#21305;&#37197;&#23383;&#31526; <span class="texMathInline">c</span> &#30340;&#23383;&#31526;&#20018;&#21482;&#21547;&#23383;&#31526; <span class="texMathInline">c</span>&#12290;</p></li><li><p>&#21305;&#37197; <span class="texMathInline">\neg c</span> &#30340;&#23383;&#31526;&#20018;&#21482;&#21547;&#19968;&#20010; <span class="texMathInline">c</span> &#20043;&#22806;&#30340;&#23383;&#31526;&#12290;</p></li><li><p>&#21305;&#37197; <span class="texMathInline">\mathit{RS}</span> &#30340;&#23383;&#31526;&#20018;&#30001;&#21305;&#37197; <span class="texMathInline">\mathit{R}</span> &#21644;&#21305;&#37197; <span class="texMathInline">\mathit{S}</span>
-&#30340;&#23383;&#31526;&#20018;&#30456;&#25509;&#32780;&#24471;&#12290;&#36825;&#21483;&#20570;<span class="emph">&#20018;&#32852;</span> (<span class="emph">concatenation</span>)&#12290;<a name="(idx._(gentag._1723))"></a></p></li><li><p>&#21305;&#37197; <span class="texMathInline">\mathit{R} \cup \mathit{S}</span> &#30340;&#23383;&#31526;&#20018;&#21305;&#37197; <span class="texMathInline">\mathit{R}</span> &#25110;
-<span class="texMathInline">\mathit{S}</span>&#12290;&#36825;&#26377;&#26102;&#20889;&#20316; <span class="texMathInline">\mathit{R} \mid \mathit{S}</span>&#65292;
-&#21483;&#20570;<span class="emph">&#24182;&#32852;</span> (<span class="emph">alternation</span>)&#12290;<a name="(idx._(gentag._1724))"></a></p></li><li><p>&#21305;&#37197; <span class="texMathInline">\mathit{R}^{*}</span> &#30340;&#23383;&#31526;&#20018;&#30001; <span class="texMathInline">n</span> (<span class="texMathInline">n \geq 0</span>) &#20010;&#21305;&#37197;
-<span class="texMathInline">\mathit{R}</span> &#30340;&#23383;&#31526;&#20018;&#20018;&#32852;&#32780;&#24471;&#12290;&#36825;&#21483;&#20570; <span class="texMathInline">\mathit{R}</span> &#30340;<span class="emph">&#20811;&#33713;&#23612;&#38381;&#21253;</span> (<span class="emph">Kleene
- closure</span>)&#12290;
-<a name="(idx._(gentag._1725))"></a></p></li></ul><p>&#30475;&#20123;&#20363;&#23376;&#26356;&#26377;&#24110;&#21161;&#65306;</p><ul><li><p><span class="texMathInline">ab</span> &#21482;&#21305;&#37197;&#23383;&#31526;&#20018; <span class="stt">ab</span>&#12290;</p></li><li><p><span class="texMathInline">ab \cup cd</span> &#21305;&#37197;&#23383;&#31526;&#20018; <span class="stt">ab</span> &#25110; <span class="stt">cd</span>&#12290;</p></li><li><p><span class="texMathInline">(ab \cup cd)(ab \cup cd \cup ef)</span> &#21305;&#37197;&#23383;&#31526;&#20018; <span class="stt">abab</span>&#12289;<span class="stt">abcd</span>&#12289;
-<span class="stt">abef</span>&#12289;<span class="stt">cdab</span>&#12289;<span class="stt">cdcd</span> &#21644; <span class="stt">cdef</span>&#12290;</p></li><li><p><span class="texMathInline">(ab)^{*}</span> &#21305;&#37197;&#31354;&#23383;&#31526;&#20018;&#12289;<span class="stt">ab</span>&#12289;<span class="stt">abab</span>&#12289;<span class="stt">ababab</span>&#12289;<span class="stt">abababab</span>&#12289;
-<span class="stt">...</span>&#12290;</p></li><li><p><span class="texMathInline">(ab \cup cd)^{*}</span> &#21305;&#37197;&#31354;&#23383;&#31526;&#20018;&#12289;<span class="stt">ab</span>&#12289;<span class="stt">cd</span>&#12289;<span class="stt">abab</span>&#12289;<span class="stt">abcd</span>&#12289;
-<span class="stt">cdab</span>&#12289;<span class="stt">cdcd</span>&#12289;<span class="stt">ababab</span>&#12289;<span class="stt">...cdcdcd</span>&#12289;<span class="stt">...</span>&#12290;</p></li></ul><p>&#19978;&#38754;&#30340;&#20363;&#23376;&#35299;&#37322;&#20102;&#19981;&#21516;&#25805;&#20316;&#30340;&#20248;&#20808;&#32423;&#65292;&#25152;&#20197;&#65292;<span class="texMathInline">{ab}^{*} \cup cd</span> &#34920;&#31034; <span class="texMathInline">(a(b^{*}))
-\cup (cd)</span>&#12290;</p><p>&#25105;&#20204;&#20363;&#23376;&#20013;&#30340;&#35268;&#33539;&#21487;&#29992;&#27491;&#21017;&#34920;&#36798;&#24335;&#20889;&#20316;</p><blockquote class="EoplCodeInset"><table cellspacing="0" cellpadding="0" class="SVerbatim"><tr><td><p><span class="texMathInline">whitespace = (space \cup newline)(space \cup newline)^{*}</span><span class="stt"></span></p></td></tr><tr><td><p><span class="stt"></span><span class="texMathInline">comment = <span class="stt">%</span>(\neg newline)^{*}</span><span class="stt"></span></p></td></tr><tr><td><p><span class="stt"></span><span class="texMathInline">identifier = letter(letter \cup digit)^{*}</span></p></td></tr></table></blockquote><p><a name="(idx._(gentag._1726))"></a>
-&#25195;&#25551;&#22120;&#29992;&#27491;&#21017;&#34920;&#36798;&#24335;&#33719;&#21462;&#35789;&#29260;&#26102;&#65292;&#35268;&#21017;&#24635;&#26159;&#21462;<span class="emph">&#26368;&#38271;</span>&#21305;&#37197;&#12290;&#25152;&#20197; <span class="stt">xyz</span> &#25195;&#25551;&#20026;&#19968;
-&#20010;&#26631;&#35782;&#31526;&#65292;&#32780;&#38750;&#19977;&#20010;&#12290;</p><p>&#25195;&#25551;&#22120;&#25214;&#21040;&#19968;&#20010;&#35789;&#29260;&#26102;&#65292;&#23427;&#36820;&#22238;&#30340;&#25968;&#25454;&#32467;&#26500;&#33267;&#23569;&#21253;&#21547;&#19979;&#21015;&#25968;&#25454;&#65306;</p><ul><li><p>&#19968;&#20010;<span class="emph">&#31867;&#21035;</span> (<span class="emph">class</span>)&#65292;&#25551;&#36848;&#35789;&#29260;&#30340;&#31181;&#31867;&#12290;&#31867;&#21035;&#30340;&#38598;&#21512;&#26159;&#35789;&#27861;&#35268;&#33539;&#30340;&#19968;&#37096;&#20998;&#12290;
-SLLGEN &#20351;&#29992; Scheme &#31526;&#21495;&#21306;&#20998;&#36825;&#20123;&#31867;&#21035;&#65307;&#20854;&#20182;&#35821;&#27861;&#20998;&#26512;&#22120;&#21487;&#33021;&#20351;&#29992;&#20854;&#20182;&#25968;&#25454;&#32467;&#26500;&#12290;</p></li><li><p>&#19968;&#27573;&#25968;&#25454;&#65292;&#25551;&#36848;&#29305;&#23450;&#35789;&#29260;&#12290;&#36825;&#27573;&#25968;&#25454;&#30340;&#24615;&#36136;&#20063;&#26159;&#35789;&#27861;&#35268;&#33539;&#30340;&#19968;&#37096;&#20998;&#12290;&#22312;&#25105;&#20204;&#30340;&#31995;&#32479;
-&#20013;&#65292;&#25968;&#25454;&#22914;&#19979;&#65306;&#26631;&#35782;&#31526;&#30340;&#25968;&#25454;&#26159;&#30001;&#35789;&#29260;&#23383;&#31526;&#20018;&#20135;&#29983;&#30340; Scheme &#31526;&#21495;&#65307;&#25968;&#23383;&#30340;&#25968;&#25454;&#26159;&#30001;&#25968;&#23383;
-&#23383;&#38754;&#20540;&#25551;&#36848;&#30340;&#25968;&#20540;&#65307;&#23383;&#31526;&#20018;&#23383;&#38754;&#20540;&#30340;&#25968;&#25454;&#23601;&#26159;&#23383;&#31526;&#20018;&#12290;&#23383;&#31526;&#20018;&#25968;&#25454;&#29992;&#20316;&#20851;&#38190;&#23383;&#21644;&#26631;&#28857;&#12290;&#22312;
-&#27809;&#26377;&#31526;&#21495;&#30340;&#23454;&#29616;&#35821;&#35328;&#20013;&#65292;&#21487;&#20197;&#25913;&#29992;&#23383;&#31526;&#20018;&#65288;&#26631;&#35782;&#31526;&#30340;&#21517;&#23383;&#65289;&#65292;&#25110;&#32773;&#20197;&#26631;&#35782;&#31526;&#20026;&#32034;&#24341;&#30340;&#21704;&#24076;
-&#34920;&#65288;<span class="emph">&#31526;&#21495;&#34920;</span> (<span class="emph">symbol table</span>)&#65289;&#26465;&#30446;&#12290;</p></li><li><p>&#19968;&#27573;&#25968;&#25454;&#65292;&#25551;&#36848;&#35813;&#35789;&#29260;&#22312;&#36755;&#20837;&#20013;&#30340;&#20301;&#32622;&#12290;&#35299;&#26512;&#22120;&#29992;&#36825;&#19968;&#20449;&#24687;&#24110;&#21161;&#31243;&#24207;&#21592;&#23450;&#20301;&#35821;&#27861;&#38169;
-&#35823;&#12290;</p></li></ul><p>&#36890;&#24120;&#65292;&#35789;&#29260;&#30340;&#20869;&#37096;&#32467;&#26500;&#21482;&#19982;&#25195;&#25551;&#22120;&#21644;&#35299;&#26512;&#22120;&#30456;&#20851;&#65292;&#25152;&#20197;&#25105;&#20204;&#19981;&#20877;&#35814;&#21152;&#20171;&#32461;&#12290;
-<a name="(idx._(gentag._1727))"></a>
-<a name="(idx._(gentag._1728))"></a></p><h4>11.2<tt>&nbsp;</tt><a name="(part._.B..2)"></a>&#35299;&#26512;</h4><p><a name="(idx._(gentag._1729))"></a>
-&#35299;&#26512;&#36807;&#31243;&#23558;&#35789;&#29260;&#24207;&#21015;&#32452;&#32455;&#25104;&#26377;&#23618;&#27425;&#30340;&#35821;&#27861;&#32467;&#26500;&#65292;&#22914;&#34920;&#36798;&#24335;&#65292;&#35821;&#21477;&#21644;&#22359;&#12290;&#36825;&#23601;&#20687;&#29992;&#20174;&#21477;&#32452;&#32455;&#21477;
-&#23376;&#12290;&#35821;&#35328;&#30340;&#35821;&#27861;&#32467;&#26500;&#36890;&#24120;&#30001; BNF &#23450;&#20041;&#65292;&#20063;&#21483;&#20570;<span class="emph">&#19978;&#19979;&#25991;&#26080;
-&#20851;&#35821;&#27861;</span> (<span class="emph">context-free grammar</span>)&#65288;<a href="isd.html#%28part._s1..1..2%29" data-pltdoc="x">&#35821;&#27861;&#23450;&#20041;&#27861;</a>&#65289;&#12290;
-<a name="(idx._(gentag._1730))"></a>
-<a name="(idx._(gentag._1731))"></a>
-<a name="(idx._(gentag._1732))"></a></p><p><div class="SIntrapara"><a name="(idx._(gentag._1733))"></a>&#35299;&#26512;&#22120;&#36755;&#20837;&#20026;&#35789;&#29260;&#24207;&#21015;&#65292;&#36755;&#20986;&#20026;&#19968;&#26869;&#25277;&#35937;&#35821;&#27861;&#26641;
-&#65288;<a href="da.html#%28part._s2..5%29" data-pltdoc="x">&#25277;&#35937;&#35821;&#27861;&#21450;&#20854;&#34920;&#31034;</a>&#65289;&#12290;SLLGEN &#29983;&#25104;&#30340;&#25277;&#35937;&#35821;&#27861;&#26641;&#21487;&#29992; <span class="stt">define-datatype</span> &#25551;&#36848;&#12290;
-<a name="(idx._(gentag._1734))"></a>
-&#23545;&#32473;&#23450;&#30340;&#35821;&#27861;&#65292;&#27599;&#20010;&#38750;&#32456;&#32467;&#31526;&#37117;&#23545;&#24212;&#19968;&#20010;&#25968;&#25454;&#31867;&#22411;&#12290;&#20197;&#27599;&#20010;&#38750;&#32456;&#32467;&#31526;&#20026;&#24038;&#36793;&#20869;&#23481;&#30340;&#29983;&#25104;&#24335;&#37117;
-&#23545;&#24212;&#19968;&#20010;&#21464;&#20307;&#12290;&#24335;&#23376;&#21491;&#36793;&#20986;&#29616;&#30340;&#27599;&#20010;&#38750;&#32456;&#32467;&#31526;&#12289;&#26631;&#35782;&#31526;&#21644;&#25968;&#23383;&#37117;&#23545;&#24212;&#21464;&#20307;&#20013;&#30340;&#19968;&#20010;&#23383;&#27573;&#12290;
-<a href="da.html#%28part._s2..5%29" data-pltdoc="x">&#25277;&#35937;&#35821;&#27861;&#21450;&#20854;&#34920;&#31034;</a>&#26377;&#19968;&#20010;&#31616;&#21333;&#31034;&#20363;&#12290;&#24403;&#35821;&#27861;&#20013;&#26377;&#22810;&#20010;&#38750;&#32456;&#32467;&#31526;&#26102;&#65292;&#21487;&#20197;&#32771;&#34385;
-<span class="EoplExerciseRef"></span> &#20013;&#30340;&#35821;&#27861;&#12290;
-<a name="(idx._(gentag._1735))"></a>
-</div><div class="SIntrapara"><blockquote class="Small"><p><span class="Iidentity">\begin{align*} \mathit{Statement} &amp;::= <span class="stt">{ </span><span class="Iidentity">\mathit{Statement}</span><span class="stt"> ; </span><span class="Iidentity">\mathit{Statement}</span><span class="stt"> }</span> \\[-3pt]
-                    &amp;::= <span class="stt">while </span><span class="Iidentity">\mathit{Expression}</span><span class="stt"> do </span><span class="Iidentity">\mathit{Statement}</span> \\[-3pt]
-                    &amp;::= <span class="Iidentity">\mathit{Identifier}</span><span class="stt"> := </span><span class="Iidentity">\mathit{Expression}</span> \\[-3pt]
-\mathit{Expression} &amp;::= \mathit{Identifier} \\[-3pt]
-                    &amp;::= <span class="stt">(</span><span class="Iidentity">\mathit{Expression}</span><span class="stt"> - </span><span class="Iidentity">\mathit{Expression}</span><span class="stt">)</span>\end{align*}</span></p></blockquote></div></p><p>&#36825;&#20010;&#35821;&#27861;&#20135;&#29983;&#30340;&#26641;&#30001;&#22914;&#19979;&#25968;&#25454;&#31867;&#22411;&#25551;&#36848;&#65306;</p><blockquote class="SubFlow"><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span class="hspace">&nbsp;</span><span class="RktSym">statement</span><span class="hspace">&nbsp;</span><span class="RktSym">statement?</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">compound-statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">stmt1</span><span class="hspace">&nbsp;</span><span class="RktSym">statement?</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">stmt2</span><span class="hspace">&nbsp;</span><span class="RktSym">statement?</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">while-statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">test</span><span class="hspace">&nbsp;</span><span class="RktSym">expression?</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">body</span><span class="hspace">&nbsp;</span><span class="RktSym">statement?</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">assign-statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">lhs</span><span class="hspace">&nbsp;</span><span class="RktSym">symbol?</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">rhs</span><span class="hspace">&nbsp;</span><span class="RktSym">expression?</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;</span></td></tr><tr><td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span class="hspace">&nbsp;</span><span class="RktSym">expression</span><span class="hspace">&nbsp;</span><span class="RktSym">expression?</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">var-exp</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">var</span><span class="hspace">&nbsp;</span><span class="RktSym">symbol?</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">diff-exp</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">exp1</span><span class="hspace">&nbsp;</span><span class="RktSym">expression?</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">exp2</span><span class="hspace">&nbsp;</span><span class="RktSym">expression?</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><p>&#24335;&#23376;&#21491;&#36793;&#30340;&#27599;&#20010;&#38750;&#32456;&#32467;&#31526;&#23545;&#24212;&#30340;&#26641;&#20316;&#20026;&#19968;&#20010;&#23383;&#27573;&#65307;&#26631;&#35782;&#31526;&#23545;&#24212;&#30340;&#31526;&#21495;&#20316;&#20026;&#19968;&#20010;&#23383;&#27573;&#12290;&#21464;&#20307;&#21517;
-&#23383;&#22312;&#29992; SLLGEN &#20889;&#35821;&#27861;&#26102;&#25351;&#23450;&#12290;&#23383;&#27573;&#21517;&#26159;&#33258;&#21160;&#29983;&#25104;&#30340;&#65307;&#36825;&#37324;&#65292;&#25105;&#20204;&#32473;&#23383;&#27573;&#36215;&#20102;&#19968;&#20123;&#20415;&#20110;&#35760;&#24518;
-&#30340;&#21517;&#23383;&#12290;&#20363;&#22914;&#65292;&#36755;&#20837;</p><blockquote class="EoplCodeInset"><table cellspacing="0" cellpadding="0" class="SVerbatim"><tr><td><p><span class="stt">{x := foo; while x do x := (x - bar)}</span></p></td></tr></table></blockquote><p>&#20135;&#29983;&#36755;&#20986;</p><blockquote class="EoplCodeInset"><p><div class="SIntrapara"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktVal">#</span><span class="RktVal">(</span><span class="RktVal">struct:compound-statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;</span><span class="RktVal">#</span><span class="RktVal">(</span><span class="RktVal">struct:assign-statement</span><span class="hspace">&nbsp;</span><span class="RktVal">x</span><span class="hspace">&nbsp;</span><span class="RktVal">#</span><span class="RktVal">(</span><span class="RktVal">struct:var-exp</span><span class="hspace">&nbsp;</span><span class="RktVal">foo</span><span class="RktVal">)</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;</span><span class="RktVal">#</span><span class="RktVal">(</span><span class="RktVal">struct:while-statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">#</span><span class="RktVal">(</span><span class="RktVal">struct:var-exp</span><span class="hspace">&nbsp;</span><span class="RktVal">x</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">#</span><span class="RktVal">(</span><span class="RktVal">struct:assign-statement</span><span class="hspace">&nbsp;</span><span class="RktVal">x</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">#</span><span class="RktVal">(</span><span class="RktVal">struct:diff-exp</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">#</span><span class="RktVal">(</span><span class="RktVal">struct:var-exp</span><span class="hspace">&nbsp;</span><span class="RktVal">x</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">#</span><span class="RktVal">(</span><span class="RktVal">struct:var-exp</span><span class="hspace">&nbsp;</span><span class="RktVal">bar</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="RktVal">)</span></td></tr></table></blockquote></div><div class="SIntrapara"><a name="(idx._(gentag._1736))"></a></div></p></blockquote></blockquote><h4>11.3<tt>&nbsp;</tt><a name="(part._.B..3)"></a>SLLGEN &#20013;&#30340;&#25195;&#25551;&#22120;&#21644;&#35299;&#26512;&#22120;</h4><h5><a name="(part._.B..3-scanners)"></a>&#23450;&#20041;&#25195;&#25551;&#22120;</h5><p><a name="(idx._(gentag._1737))"></a>
-&#22312; SLLGEN &#20013;&#65292;&#25195;&#25551;&#22120;&#29992;&#27491;&#21017;&#34920;&#36798;&#24335;&#23450;&#20041;&#12290;&#25105;&#20204;&#30340;&#20363;&#23376;&#29992; SLLGEN&#65292;&#35201;&#20889;&#25104;&#19979;&#38754;&#36825;&#26679;&#65306;</p><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">scanner-spec-a</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktVal">'</span><span class="RktVal">(</span><span class="RktVal">(</span><span class="RktVal">white-sp</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">whitespace</span><span class="RktVal">)</span><span class="hspace">&nbsp;</span><span class="RktVal">skip</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">comment</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">"%"</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">arbno</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">not</span><span class="hspace">&nbsp;</span><span class="RktVal">#\newline</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="hspace">&nbsp;</span><span class="RktVal">skip</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">identifier</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">letter</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">arbno</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">or</span><span class="hspace">&nbsp;</span><span class="RktVal">letter</span><span class="hspace">&nbsp;</span><span class="RktVal">digit</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="hspace">&nbsp;</span><span class="RktVal">symbol</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">number</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">digit</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">arbno</span><span class="hspace">&nbsp;</span><span class="RktVal">digit</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="hspace">&nbsp;</span><span class="RktVal">number</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><p>&#22914;&#26524;&#25195;&#25551;&#22120;&#35201;&#21644;&#22788;&#29702;&#20851;&#38190;&#23383;&#25110;&#26631;&#28857;&#65288;&#22914; <span class="stt">while</span> &#25110; <span class="stt">=</span>&#65289;&#30340;&#35299;&#26512;&#22120;&#20849;&#29992;&#65292;&#19981;&#38656;&#35201;&#25163;
-&#21160;&#23558;&#36825;&#20123;&#25918;&#20837;&#25195;&#25551;&#22120;&#20013;&#65307;&#35299;&#26512;&#22120;&#29983;&#25104;&#22120;&#20250;&#33258;&#21160;&#28155;&#21152;&#23427;&#20204;&#12290;</p><p>SLLGEN &#20013;&#30340;&#25195;&#25551;&#22120;&#23450;&#20041;&#26159;&#28385;&#36275;&#22914;&#19979;&#35821;&#27861;&#30340;&#21015;&#34920;&#65306;</p><blockquote class="Small"><p><span class="Iidentity">\begin{align*}            \mathit{Scanner\mbox{-}spec} &amp;::= <span class="stt">(</span><span class="Iidentity">\{\mathit{Regexp\mbox{-}and\mbox{-}action}\}^{*}</span><span class="stt">)</span> \\[-3pt]
-\mathit{Regexp\mbox{-}and\mbox{-}action} &amp;::= <span class="stt">(</span><span class="Iidentity">\mathit{Name}</span><span class="stt"> (</span><span class="Iidentity">\{\mathit{Regexp}\}^{*}</span><span class="stt">) </span><span class="Iidentity">\mathit{Action}</span><span class="stt">)</span> \\[-3pt]
-                           \mathit{Name} &amp;::= \mathit{Symbol} \\[-3pt]
-                         \mathit{Regexp} &amp;::= \mathit{String} \mid <span class="stt">letter</span> \mid <span class="stt">digit</span> \mid <span class="stt">whitespace</span> \mid <span class="stt">any</span> \\[-3pt]
-                                         &amp;::= <span class="stt">(not </span><span class="Iidentity">\mathit{Character}</span><span class="stt">)</span> \mid <span class="stt">(or </span><span class="Iidentity">\{\mathit{Regexp}\}^{*}</span><span class="stt">)</span> \\[-3pt]
-                                         &amp;::= <span class="stt">(arbno </span><span class="Iidentity">\mathit{Regexp}</span><span class="stt">)</span> \mid <span class="stt">(concat </span><span class="Iidentity">\{\mathit{Regexp}\}^{*}</span><span class="stt">)</span> \\[-3pt]
-                         \mathit{Action} &amp;::= <span class="stt">skip</span> \mid <span class="stt">symbol</span> \mid <span class="stt">number</span> \mid <span class="stt">string</span>\end{align*}</span></p></blockquote><p>&#21015;&#34920;&#20013;&#30340;&#27599;&#19968;&#39033;&#37117;&#23450;&#20041;&#20102;&#19968;&#20010;&#27491;&#21017;&#34920;&#36798;&#24335;&#65292;&#23450;&#20041;&#21253;&#21547;&#21517;&#23383;&#12289;&#19968;&#31995;&#21015;&#27491;&#21017;&#34920;&#36798;&#24335;&#65292;&#20197;&#21450;&#21305;&#37197;&#25104;
-&#21151;&#26102;&#30340;&#21160;&#20316;&#12290;&#21517;&#23383;&#26159;&#19968;&#20010; Scheme &#31526;&#21495;&#65292;&#34920;&#31034;&#35789;&#29260;&#30340;&#31867;&#21035;&#12290;</p><p>&#30001;&#20110;&#25195;&#25551;&#22120;&#20013;&#30340;&#39030;&#23618;<span class="emph">&#27491;&#21017;&#34920;&#36798;&#24335;</span> (<span class="emph">regexp</span>) &#20960;&#20046;&#24635;&#26159;&#20018;&#32852;&#32780;&#24471;&#65292;&#23450;&#20041;&#30340;&#31532;&#20108;&#37096;&#20998;&#26159;
-&#19968;&#31995;&#21015;&#27491;&#21017;&#34920;&#36798;&#24335;&#12290;&#27491;&#21017;&#34920;&#36798;&#24335;&#21487;&#20197;&#26159;&#19968;&#20010;&#23383;&#31526;&#20018;&#65307;&#21487;&#20197;&#26159;&#39044;&#20808;&#23450;&#20041;&#30340;&#22235;&#20010;&#27979;&#35797;&#22120;&#20043;&#19968;&#65306;
-<span class="stt">letter</span>&#65288;&#21305;&#37197;&#20219;&#20309;&#23383;&#27597;&#65289;&#65292;<span class="stt">digit</span>&#65288;&#21305;&#37197;&#20219;&#20309;&#25968;&#23383;&#65289;&#65292;<span class="stt">whitespace</span>&#65288;&#21305;&#37197;&#20219;
-&#20309; Scheme &#31354;&#30333;&#23383;&#31526;&#65289;&#65292;&#20197;&#21450; <span class="stt">any</span>&#65288;&#21305;&#37197;&#20219;&#24847;&#23383;&#31526;&#65289;&#65307;&#21487;&#20197;&#26159;&#19968;&#20010;&#21435;&#21453;&#23383;&#31526;&#65307;&#20063;&#21487;&#20197;
-&#26159;&#32452;&#21512;&#32780;&#24471;&#30340;&#27491;&#21017;&#34920;&#36798;&#24335;&#65292;&#37319;&#29992; Scheme &#24335;&#30340;&#35821;&#27861;&#65292;&#20197; <span class="stt">or</span> &#34920;&#31034;&#24182;&#32852;&#65292;&#20197;
-<span class="stt">concat</span> &#34920;&#31034;&#20018;&#32852;&#65292;&#20197; <span class="stt">arbno</span> &#34920;&#31034;&#20811;&#33713;&#23612;&#26143;&#21495;&#12290;</p><p>&#25195;&#25551;&#22120;&#24037;&#20316;&#26102;&#65292;&#25226;&#23383;&#31526;&#25910;&#38598;&#21040;&#19968;&#20010;&#32531;&#23384;&#20013;&#12290;&#24403;&#25195;&#25551;&#22120;&#26029;&#23450;&#25214;&#20986;&#20102;&#23450;&#20041;&#20013;&#25152;&#26377;&#27491;&#21017;&#34920;&#36798;&#24335;&#30340;&#26368;
-&#38271;&#21305;&#37197;&#26102;&#65292;&#23427;&#25191;&#34892;&#23545;&#24212;&#27491;&#21017;&#34920;&#36798;&#24335;&#30340;<span class="emph">&#21160;&#20316;</span>&#12290;</p><p>&#21160;&#20316;&#20026;&#19979;&#21015;&#20043;&#19968;&#65306;</p><ul><li><p>&#31526;&#21495; <span class="stt">skip</span>&#12290;&#36825;&#34920;&#31034;&#35789;&#29260;&#32467;&#26463;&#65292;&#20294;&#19981;&#20135;&#29983;&#20219;&#20309;&#35789;&#29260;&#12290;&#25195;&#25551;&#22120;&#32487;&#32493;&#22788;&#29702;&#23383;&#31526;&#20018;&#65292;
-&#25214;&#20986;&#19979;&#19968;&#20010;&#35789;&#29260;&#12290;&#36825;&#19968;&#21160;&#20316;&#29992;&#20110;&#31354;&#30333;&#23383;&#31526;&#21644;&#27880;&#37322;&#12290;</p></li><li><p>&#31526;&#21495; <span class="stt">symbol</span>&#12290;&#32531;&#23384;&#20013;&#30340;&#23383;&#31526;&#36716;&#25442;&#20026;&#19968;&#20010; Scheme &#31526;&#21495;&#65292;&#24182;&#20135;&#29983;&#19968;&#20010;&#35789;&#29260;&#65292;&#20197;
-&#25351;&#23450;&#31867;&#21035;&#21517;&#20026;&#20854;&#31867;&#21035;&#65292;&#20197;&#23545;&#24212;&#31526;&#21495;&#20026;&#20854;&#25968;&#25454;&#12290;</p></li><li><p>&#31526;&#21495; <span class="stt">number</span>&#12290;&#32531;&#23384;&#20013;&#30340;&#23383;&#31526;&#36716;&#25442;&#20026;&#19968;&#20010; Scheme &#25968;&#20540;&#65292;&#24182;&#20135;&#29983;&#19968;&#20010;&#35789;&#29260;&#65292;&#20197;
-&#25351;&#23450;&#31867;&#21035;&#21517;&#20026;&#20854;&#31867;&#21035;&#65292;&#20197;&#23545;&#24212;&#25968;&#20540;&#20026;&#20854;&#25968;&#25454;&#12290;</p></li><li><p>&#31526;&#21495; <span class="stt">string</span>&#12290;&#32531;&#23384;&#20013;&#30340;&#23383;&#31526;&#36716;&#25442;&#20026;&#19968;&#20010; Scheme &#23383;&#31526;&#20018;&#65292;&#24182;&#20135;&#29983;&#19968;&#20010;&#35789;&#29260;&#65292;
-&#20197;&#25351;&#23450;&#31867;&#21035;&#21517;&#20026;&#20854;&#31867;&#21035;&#65292;&#20197;&#23545;&#24212;&#23383;&#31526;&#20018;&#20026;&#20854;&#25968;&#25454;&#12290;</p></li></ul><p>&#22914;&#26524;&#20004;&#20010;&#27491;&#21017;&#34920;&#36798;&#24335;&#21516;&#26102;&#20026;&#26368;&#38271;&#21305;&#37197;&#65292;<span class="stt">string</span> &#20248;&#20808;&#20110; <span class="stt">symbol</span>&#12290;&#36825;&#26465;&#35268;&#21017;&#24847;&#21619;&#30528;
-&#20851;&#38190;&#23383;&#20250;&#25353;&#20851;&#38190;&#23383;&#22788;&#29702;&#65292;&#32780;&#38750;&#26631;&#35782;&#31526;&#12290;
-<a name="(idx._(gentag._1738))"></a></p><h5><a name="(part._.B..3-grammars)"></a>&#23450;&#20041;&#35821;&#27861;</h5><p><a name="(idx._(gentag._1739))"></a>
-SLLGEN &#36824;&#21253;&#21547;&#19968;&#31181;&#23450;&#20041;&#35821;&#27861;&#30340;&#35821;&#35328;&#12290;&#19978;&#38754;&#30340;&#31616;&#21333;&#35821;&#27861;&#29992; SLLGEN &#20889;&#20316;</p><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-a1</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktVal">'</span><span class="RktVal">(</span><span class="RktVal">(</span><span class="RktVal">statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">"{"</span><span class="hspace">&nbsp;</span><span class="RktVal">statement</span><span class="hspace">&nbsp;</span><span class="RktVal">";"</span><span class="hspace">&nbsp;</span><span class="RktVal">statement</span><span class="hspace">&nbsp;</span><span class="RktVal">"}"</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">compound-statement</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">"while"</span><span class="hspace">&nbsp;</span><span class="RktVal">expression</span><span class="hspace">&nbsp;</span><span class="RktVal">"do"</span><span class="hspace">&nbsp;</span><span class="RktVal">statement</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">while-statement</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">identifier</span><span class="hspace">&nbsp;</span><span class="RktVal">":="</span><span class="hspace">&nbsp;</span><span class="RktVal">expression</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">assign-statement</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">expression</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">identifier</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">var-exp</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">expression</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">"("</span><span class="hspace">&nbsp;</span><span class="RktVal">expression</span><span class="hspace">&nbsp;</span><span class="RktVal">"-"</span><span class="hspace">&nbsp;</span><span class="RktVal">expression</span><span class="hspace">&nbsp;</span><span class="RktVal">")"</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">diff-exp</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><p>SLLGEN &#20013;&#30340;&#35821;&#27861;&#26159;&#30001;&#19979;&#21015;&#35821;&#27861;&#25551;&#36848;&#30340;&#21015;&#34920;&#65306;</p><blockquote class="Small"><p><a name="(idx._(gentag._1740))"></a>
-<span class="Iidentity">\begin{align*}          \mathit{Grammar} &amp;::= <span class="stt">(</span><span class="Iidentity">\{\mathit{Production}\}^{*}</span><span class="stt">)</span> \\[-3pt]
-       \mathit{Production} &amp;::= <span class="stt">(</span><span class="Iidentity">\mathit{Lhs}</span><span class="stt"> (</span><span class="Iidentity">\{\mathit{Rhs\mbox{-}item}\}^{*}</span><span class="stt">) </span><span class="Iidentity">\mathit{Prod\mbox{-}name}</span><span class="stt">)</span> \\[-3pt]
-             \mathit{Lhs} &amp;::= \mathit{Symbol} \\[-3pt]
- \mathit{Rhs\mbox{-}item} &amp;::= \mathit{Symbol} \mid \mathit{String} \\[-3pt]
-                          &amp;::= <span class="stt">(arbno </span><span class="Iidentity">\mathit{\{Rhs\mbox{-}item\}^{*}}</span><span class="stt">)</span> \\[-3pt]
-                          &amp;::= <span class="stt">(separated-list </span><span class="Iidentity">\mathit{\{Rhs\mbox{-}item\}^{*}}</span><span class="stt"> </span><span class="Iidentity">\mathit{String}</span><span class="stt">)</span> \\[-3pt]
-\mathit{Prod\mbox{-}name} &amp;::= \mathit{Symbol}\end{align*}</span></p></blockquote><p>&#35821;&#27861;&#26159;&#29983;&#25104;&#24335;&#21015;&#34920;&#12290;&#31532;&#19968;&#20010;&#29983;&#25104;&#24335;&#30340;&#24038;&#36793;&#26159;&#35821;&#27861;&#30340;&#36215;&#22987;&#31526;&#21495;&#12290;&#27599;&#20010;&#29983;&#25104;&#24335;&#21253;&#21547;&#24038;&#36793;&#65288;&#19968;&#20010;&#38750;
-&#32456;&#32467;&#31526;&#21495;&#65289;&#12289;&#21491;&#36793;&#65288;<span class="texMathInline">rhs\mbox{-}item</span> &#30340;&#21015;&#34920;&#65289;&#65292;&#20197;&#21450;&#29983;&#25104;&#24335;&#21517;&#23383;&#12290;&#29983;&#25104;&#24335;&#30340;&#21491;&#36793;&#26159;&#31526;
-&#21495;&#25110;&#32773;&#23383;&#31526;&#20018;&#21015;&#34920;&#12290;&#31526;&#21495;&#26159;&#38750;&#32456;&#32467;&#31526;&#65307;&#23383;&#31526;&#20018;&#26159;&#23383;&#31526;&#20018;&#23383;&#38754;&#20540;&#12290;&#24335;&#23376;&#21491;&#36793;&#20063;&#21487;&#20197;&#21253;&#21547;
-<span class="stt">arbno</span> &#25110; <span class="stt">separated-list</span>&#65307;&#36825;&#20123;&#30041;&#24453;&#19979;&#38754;&#35752;&#35770;&#12290;&#29983;&#25104;&#24335;&#30340;&#21517;&#23383;&#26159;&#19968;&#20010;&#31526;&#21495;&#65292;&#25104;
-&#20026; <span class="stt">define-datatype</span> &#20013;&#23545;&#24212;&#29983;&#25104;&#24335;&#30340;&#21464;&#20307;&#21517;&#12290;</p><p>&#22312; SLLGEN &#20013;&#65292;&#35299;&#26512;&#22120;&#24517;&#39035;&#22312;&#20165;&#33719;&#30693;&#20197;&#19979;&#20869;&#23481;&#30340;&#26465;&#20214;&#19979;&#65292;&#36890;&#36807;&#35821;&#27861;&#26029;&#23450;&#29983;&#25104;&#24335;&#65306;(1) &#27491;&#22312;&#23547;
-&#25214;&#21738;&#19968;&#38750;&#32456;&#32467;&#31526;&#65292;(2) &#27491;&#22312;&#35299;&#26512;&#30340;&#23383;&#31526;&#20018;&#20013;&#30340;&#39318;&#20010;&#31526;&#21495;&#65288;&#35789;&#29260;&#65289;&#12290;&#36825;&#31181;&#24418;&#24335;&#30340;&#35821;&#27861;&#21483;&#20570;
-<span class="texMathInline">LL(1)</span> &#35821;&#27861;&#65307;SLLGEN &#34920;&#31034; Scheme <span class="texMathInline">LL(1)</span> &#35299;&#26512;&#22120;<span style="font-weight: bold">&#29983;&#25104;</span>&#22120;&#65288;Scheme
-<span class="texMathInline">LL(1)</span> parser GENerator&#65289;&#12290;&#22312;&#23454;&#36341;&#20013;&#65292;&#36825;&#26377;&#20123;&#36807;&#20110;&#20005;&#26684;&#20102;&#65292;&#20294;&#36275;&#20197;&#24212;&#20184;&#26412;&#20070;&#38656;&#35201;&#12290;&#22914;
-&#26524;&#36755;&#20837;&#35821;&#27861;&#19981;&#28385;&#36275;&#36825;&#19968;&#26465;&#20214;&#65292;SLLGEN &#20250;&#32473;&#20986;&#19968;&#26465;&#35686;&#21578;&#12290;</p><h5><a name="(part._.B..3-operations)"></a>SLLGEN&#30340;&#25805;&#20316;</h5><p>SLLGEN &#21253;&#21547;&#20960;&#20010;&#36807;&#31243;&#65292;&#23558;&#25195;&#25551;&#22120;&#21644;&#35821;&#27861;&#32467;&#21512;&#36215;&#26469;&#65292;&#24418;&#25104;&#21487;&#20197;&#25191;&#34892;&#30340;&#35299;&#26512;&#22120;&#12290;
-<span class="EoplFigureRef"></span> &#23637;&#31034;&#20102;&#29992; SLLGEN &#23450;&#20041;&#35821;&#35328;&#25195;&#25551;&#22120;&#21644;&#35299;&#26512;&#22120;&#30340;&#20363;&#23376;&#12290;</p><p>&#36807;&#31243; <span class="stt">sllgen:make-define-datatypes</span> &#36127;&#36131;&#20026;&#35821;&#27861;&#30340;&#27599;&#20010;&#29983;&#25104;&#24335;&#20135;&#29983;&#19968;&#20010;
-<span class="stt">define-datatype</span> &#34920;&#36798;&#24335;&#65292;&#20379; <span class="stt">cases</span> &#20351;&#29992;&#12290;&#36807;&#31243;
-<span class="stt">sllgen:list-define-datatypes</span> &#20063;&#29983;&#25104; <span class="stt">define-datatype</span> &#34920;&#36798;&#24335;&#65292;&#20294;&#26159;&#20250;&#20197;&#21015;
-&#34920;&#24418;&#24335;&#36820;&#22238;&#65292;&#32780;&#38750;&#25191;&#34892;&#23427;&#20204;&#12290;&#30001;&#36825;&#20123;&#36807;&#31243;&#29983;&#25104;&#30340;&#23383;&#27573;&#21517;&#19981;&#22815;&#30452;&#35266;&#65292;&#22240;&#20026;&#35821;&#27861;&#20013;&#27809;&#26377;&#36825;&#20123;&#20449;&#24687;&#65307;
-&#35201;&#24471;&#21040;&#26356;&#22909;&#30340;&#23383;&#27573;&#21517;&#65292;&#38656;&#35201;&#20889;&#20986; <span class="stt">define-datatype</span>&#12290;</p><p>&#36807;&#31243; <span class="stt">sllgen:make-string-scanner</span> &#21462;&#19968;&#25195;&#25551;&#22120;&#21644;&#19968;&#35821;&#27861;&#65292;&#29983;&#25104;&#19968;&#20010;&#25195;&#25551;&#36807;&#31243;&#12290;&#24471;&#20986;
-&#30340;&#36807;&#31243;&#21487;&#20197;&#22788;&#29702;&#19968;&#20010;&#23383;&#31526;&#20018;&#65292;&#24471;&#21040;&#19968;&#20010;&#35789;&#29260;&#21015;&#34920;&#12290;&#35821;&#27861;&#29992;&#26469;&#32473;&#24471;&#21040;&#30340;&#25195;&#25551;&#36807;&#31243;&#28155;&#21152;&#20851;&#38190;&#23383;&#12290;
-&#36825;&#19968;&#36807;&#31243;&#20027;&#35201;&#29992;&#20110;&#35843;&#35797;&#12290;</p><p>&#36807;&#31243; <span class="stt">sllgen:make-string-parser</span> &#29983;&#25104;&#19968;&#20010;&#35299;&#26512;&#22120;&#12290;&#35299;&#26512;&#22120;&#26159;&#19968;&#36807;&#31243;&#65292;&#23427;&#21462;&#19968;&#23383;&#31526;&#20018;&#65292;
-&#29992;&#25195;&#25551;&#22120;&#25195;&#25551;&#23427;&#65292;&#29992;&#35821;&#27861;&#35299;&#26512;&#23427;&#65292;&#28982;&#21518;&#36820;&#22238;&#19968;&#26869;&#25277;&#35937;&#35821;&#27861;&#26641;&#12290;&#20687;
-<span class="stt">sllgen:make-string-scanner</span> &#19968;&#26679;&#65292;&#35821;&#27861;&#20013;&#30340;&#23383;&#31526;&#20018;&#23383;&#38754;&#20540;&#21253;&#21547;&#22312;&#25195;&#25551;&#22120;&#20013;&#12290;</p><p>SLLGEN &#20063;&#21487;&#20197;&#29992;&#26469;&#29983;&#25104;&#35835;&#20837;-&#27714;&#20540;-&#25171;&#21360;&#24490;&#29615;&#65288;<a href="expr.html#%28part._s3..1%29" data-pltdoc="x">&#35268;&#33539;&#21644;&#23454;&#29616;&#31574;&#30053;</a>&#65289;&#12290;&#36807;&#31243;
-<span class="stt">sllgen:make-stream-parser</span> &#19982;&#23383;&#31526;&#20018;&#29256;&#26412;&#31867;&#20284;&#65292;&#20294;&#26159;&#23427;&#30340;&#36755;&#20837;&#26159;&#23383;&#31526;&#27969;&#65292;&#36755;&#20986;&#26159;&#35789;
-&#29260;&#27969;&#12290;&#36807;&#31243; <span class="stt">sllgen:make-rep-loop</span> &#21462;&#19968;&#23383;&#31526;&#20018;&#65292;&#19968;&#20010;&#21333;&#21442;&#25968;&#36807;&#31243;&#65292;&#19968;&#20010;&#27969;&#24335;&#35299;&#26512;&#22120;&#65292;
-&#29983;&#25104;&#19968;&#20010;&#35835;&#20837;-&#27714;&#20540;-&#25171;&#21360;&#24490;&#29615;&#65292;&#20197;&#25351;&#23450;&#23383;&#31526;&#20018;&#20026;&#26631;&#20934;&#36755;&#20986;&#20013;&#30340;&#25552;&#31034;&#31526;&#65292;&#20174;&#26631;&#20934;&#36755;&#20837;&#35835;&#20837;&#23383;&#31526;&#65292;
-&#35299;&#26512;&#23427;&#20204;&#65292;&#28982;&#21518;&#20197;&#25351;&#23450;&#36807;&#31243;&#22788;&#29702;&#25277;&#35937;&#35821;&#27861;&#26641;&#65292;&#23558;&#32467;&#26524;&#25171;&#21360;&#20986;&#26469;&#12290;&#20363;&#22914;&#65306;</p><blockquote class="EoplFigure"><p><div class="SIntrapara">[!t]</div><div class="SIntrapara"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">scanner-spec-1</span><span class="hspace">&nbsp;</span><span class="RktSym">...</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;</span></td></tr><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-1</span><span class="hspace">&nbsp;</span><span class="RktSym">...</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;</span></td></tr><tr><td><span class="RktPn">(</span><span class="RktSym">sllgen:make-define-datatypes</span><span class="hspace">&nbsp;</span><span class="RktSym">scanner-spec-1</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-1</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;</span></td></tr><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">list-the-datatypes</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">lambda</span><span class="hspace">&nbsp;</span><span class="RktPn">(</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">sllgen:list-define-datatypes</span><span class="hspace">&nbsp;</span><span class="RktSym">scanner-spec-1</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-1</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;</span></td></tr><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">just-scan</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">sllgen:make-string-scanner</span><span class="hspace">&nbsp;</span><span class="RktSym">scanner-spec-1</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-1</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;</span></td></tr><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">scan&amp;parse</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">sllgen:make-string-parser</span><span class="hspace">&nbsp;</span><span class="RktSym">scanner-spec-1</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-1</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;</span></td></tr><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">read-eval-print</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">sllgen:make-rep-loop</span><span class="hspace">&nbsp;</span><span class="RktVal">"--&gt; "</span><span class="hspace">&nbsp;</span><span class="RktSym">value-of--program</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">sllgen:make-stream-parser</span><span class="hspace">&nbsp;</span><span class="RktSym">scanner-spec-1</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-1</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr></table></blockquote></div></p><blockquote class="caption"><p>&#20351;&#29992; SLLGEN<a name="(elem._fig-.B..2)"></a></p></blockquote></blockquote><blockquote class="EoplCodeInset"><table cellspacing="0" cellpadding="0" class="SVerbatim"><tr><td><p><span class="stt">&gt; (define read-eval-print</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="stt">(sllgen:make-rep-loop "--&gt; " eval-program</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="stt">(sllgen:make-stream-parser</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="stt">scanner-spec-3-1</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="stt">grammar-3-1)))</span></p></td></tr><tr><td><p><span class="stt">&gt; (read-eval-print)</span></p></td></tr><tr><td><p><span class="stt">--&gt; 5</span></p></td></tr><tr><td><p><span class="stt">5</span></p></td></tr><tr><td><p><span class="stt">--&gt; add1(2)</span></p></td></tr><tr><td><p><span class="stt">3</span></p></td></tr><tr><td><p><span class="stt">--&gt; +(add1(2),-(6,4))</span></p></td></tr><tr><td><p><span class="stt">5</span></p></td></tr></table></blockquote><p>&#25511;&#21046;&#27969;&#31243;&#20174;&#36825;&#19968;&#24490;&#29615;&#36820;&#22238; Scheme &#35835;&#20837;-&#27714;&#20540;-&#25171;&#21360;&#24490;&#29615;&#30340;&#26041;&#24335;&#30001;&#31995;&#32479;&#20915;&#23450;&#12290;</p><h5><a name="(part._.B..3-arbno)"></a><span class="stt">arbno</span>
-&#21644; <span class="stt">separated-list</span> &#27169;&#26495;&#20851;&#38190;&#23383;</h5><p><div class="SIntrapara"><span class="stt">arbno</span> &#20851;&#38190;&#23383;&#21363;&#35821;&#27861;&#20013;&#30340;&#20811;&#33713;&#23612;&#26143;&#21495;&#65306;&#23427;&#21305;&#37197;&#37325;&#22797;&#20219;&#24847;&#27425;&#25968;&#30340;&#26465;&#30446;&#12290;&#20363;&#22914;&#65292;&#29983;&#25104;&#24335;
-</div><div class="SIntrapara"><blockquote class="Small"><p><span class="texMathDisplay">\mathit{statement} ::= <span class="stt">{ </span><span class="texMathInline">\{statement <span class="stt">;</span>\}^{*}</span><span class="stt"> }</span></span></p></blockquote></div><div class="SIntrapara"><blockquote class="SubFlow"><p>&#22312; SLLGEN &#20013;&#21487;&#20889;&#20316;</p><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-a2</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktVal">'</span><span class="RktVal">(</span><span class="RktVal">(</span><span class="RktVal">statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">"{"</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">arbno</span><span class="hspace">&nbsp;</span><span class="RktVal">statement</span><span class="hspace">&nbsp;</span><span class="RktVal">";"</span><span class="RktVal">)</span><span class="hspace">&nbsp;</span><span class="RktVal">"}"</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">compound-statement</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">...</span><span class="RktVal">)</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><p>&#36825;&#21305;&#37197;&#19968;&#26465;&#22797;&#21512;&#35821;&#21477;&#65292;&#30001;&#20219;&#24847;&#25968;&#37327;&#20998;&#21495;&#20998;&#38548;&#30340;&#35821;&#21477;&#24207;&#21015;&#32452;&#25104;&#12290;</p></blockquote></div></p><p><span class="stt">arbno</span> &#22312;&#25277;&#35937;&#35821;&#27861;&#26641;&#20013;&#23545;&#24212;&#21333;&#20010;&#23383;&#27573;&#12290;&#35813;&#23383;&#27573;&#21253;&#21547;&#19968;&#20010;<span class="emph">&#21015;&#34920;</span>&#65292;&#30001; <span class="stt">arbno</span>
-&#20869;&#30340;&#38750;&#32456;&#32467;&#31526;&#25968;&#25454;&#32452;&#25104;&#12290;&#25105;&#20204;&#30340;&#20363;&#23376;&#29983;&#25104;&#22914;&#19979;&#25968;&#25454;&#31867;&#22411;&#65306;</p><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span class="hspace">&nbsp;</span><span class="RktSym">statement</span><span class="hspace">&nbsp;</span><span class="RktSym">statement?</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">compound-statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">compound-statement32</span><span class="hspace">&nbsp;</span><span class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace">&nbsp;</span><span class="RktSym">statement?</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktSym">...</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><p>&#31616;&#21333;&#20132;&#20114;&#20026;&#65306;</p><blockquote class="EoplCodeInset"><table cellspacing="0" cellpadding="0" class="SVerbatim"><tr><td><p><span class="stt">&gt; (define scan&amp;parse2</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="stt">(sllgen:make-string-parser scanner-spec-a grammar-a2))</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;</span></p></td></tr><tr><td><p><span class="stt">&gt; (scan&amp;parse2 "{x := foo; y := bar; z := uu;}")</span></p></td></tr><tr><td><p><span class="stt">(compound-statement</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;</span><span class="stt">((assign-statement x (var-exp foo))</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;</span><span class="stt">(assign-statement y (var-exp bar))</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;</span><span class="stt">(assign-statement z (var-exp uu))))</span></p></td></tr></table></blockquote><p>&#25105;&#20204;&#21487;&#20197;&#25226;&#38750;&#32456;&#32467;&#31526;&#24207;&#21015;&#25918;&#20837; <span class="stt">arbno</span> &#20013;&#12290;&#36825;&#26102;&#65292;&#33410;&#28857;&#20013;&#20250;&#26377;&#22810;&#20010;&#23383;&#27573;&#65292;&#27599;&#20010;&#23545;&#24212;&#19968;&#20010;
-&#38750;&#32456;&#32467;&#31526;&#65307;&#27599;&#20010;&#23383;&#27573;&#21253;&#21547;&#19968;&#20010;&#35821;&#27861;&#26641;&#21015;&#34920;&#12290;&#20363;&#22914;&#65306;</p><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-a3</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktVal">'</span><span class="RktVal">(</span><span class="RktVal">(</span><span class="RktVal">expression</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">identifier</span><span class="RktVal">)</span><span class="hspace">&nbsp;</span><span class="RktVal">var-exp</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">expression</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">"let"</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">arbno</span><span class="hspace">&nbsp;</span><span class="RktVal">identifier</span><span class="hspace">&nbsp;</span><span class="RktVal">"="</span><span class="hspace">&nbsp;</span><span class="RktVal">expression</span><span class="RktVal">)</span><span class="hspace">&nbsp;</span><span class="RktVal">"in"</span><span class="hspace">&nbsp;</span><span class="RktVal">expression</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">let-exp</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;</span></td></tr><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">scan&amp;parse3</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">sllgen:make-string-parser</span><span class="hspace">&nbsp;</span><span class="RktSym">scanner-spec-a</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-a3</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><p>&#29983;&#25104;&#25968;&#25454;&#31867;&#22411;</p><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span class="hspace">&nbsp;</span><span class="RktSym">expression</span><span class="hspace">&nbsp;</span><span class="RktSym">expression?</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">var-exp</span><span class="hspace">&nbsp;</span><span class="RktPn">(</span><span class="RktSym">var-exp4</span><span class="hspace">&nbsp;</span><span class="RktSym">symbol?</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">let-exp</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">let-exp9</span><span class="hspace">&nbsp;</span><span class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace">&nbsp;</span><span class="RktSym">symbol?</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">let-exp7</span><span class="hspace">&nbsp;</span><span class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace">&nbsp;</span><span class="RktSym">expression?</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">let-exp8</span><span class="hspace">&nbsp;</span><span class="RktSym">expression?</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><p>&#36825;&#37324;&#26159;&#36816;&#29992;&#35813;&#35821;&#27861;&#30340;&#20363;&#23376;&#65306;</p><blockquote class="SubFlow"><blockquote class="EoplCodeInset"><table cellspacing="0" cellpadding="0" class="SVerbatim"><tr><td><p><span class="stt">&gt; (scan&amp;parse3 "let x = y u = v in z")</span></p></td></tr><tr><td><p><span class="stt">(let-exp</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;</span><span class="stt">(x u)</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;</span><span class="stt">((var-exp y) (var-exp v))</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;</span><span class="stt">(var-exp z))</span></p></td></tr></table></blockquote><p>&#23450;&#20041; <span class="stt">(arbno identifier "=" expression)</span> &#29983;&#25104;&#20004;&#20010;&#21015;&#34920;&#65306;&#26631;&#35782;&#31526;&#21015;&#34920;&#21644;&#34920;&#36798;&#24335;&#21015;&#34920;&#12290;
-&#36825;&#24456;&#26041;&#20415;&#65292;&#22240;&#20026;&#25105;&#20204;&#30340;&#35299;&#37322;&#22120;&#33021;&#30452;&#25509;&#20174;&#20013;&#21462;&#20986;&#19968;&#37096;&#20998;&#34920;&#36798;&#24335;&#12290;</p></blockquote><p>&#23545;&#26576;&#20123;&#35821;&#35328;&#30340;&#35821;&#27861;&#65292;&#22312;&#21015;&#34920;&#20013;&#21482;&#29992;&#20998;&#38548;&#31526;&#65292;&#32780;&#19981;&#29992;&#32467;&#26463;&#31526;&#20250;&#26356;&#26041;&#20415;&#12290;&#36825;&#21313;&#20998;&#24120;&#35265;&#65292;&#22240;&#27492;
-SLLGEN &#20869;&#32622;&#36825;&#31181;&#25805;&#20316;&#12290;&#25105;&#20204;&#21487;&#20197;&#20889;</p><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-a4</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktVal">'</span><span class="RktVal">(</span><span class="RktVal">(</span><span class="RktVal">statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">"{"</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">separated-list</span><span class="hspace">&nbsp;</span><span class="RktVal">statement</span><span class="hspace">&nbsp;</span><span class="RktVal">";"</span><span class="RktVal">)</span><span class="hspace">&nbsp;</span><span class="RktVal">"}"</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">compound-statement</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">...</span><span class="RktVal">)</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><p>&#23427;&#29983;&#25104;&#25968;&#25454;&#31867;&#22411;</p><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span class="hspace">&nbsp;</span><span class="RktSym">statement</span><span class="hspace">&nbsp;</span><span class="RktSym">statement?</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">compound-statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">compound-statement103</span><span class="hspace">&nbsp;</span><span class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace">&nbsp;</span><span class="RktSym">statement?</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktSym">...</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><p>&#36825;&#26159;&#31616;&#21333;&#20132;&#20114;&#30340;&#20363;&#23376;&#65306;</p><blockquote class="SubFlow"><blockquote class="EoplCodeInset"><table cellspacing="0" cellpadding="0" class="SVerbatim"><tr><td><p><span class="stt">&gt; (define scan&amp;parse4</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="stt">(sllgen:make-string-parser scanner-spec-a grammar-a4))</span></p></td></tr><tr><td><p><span class="stt">&gt; (scan&amp;parse4 "{}")</span></p></td></tr><tr><td><p><span class="stt">(compound-statement ())</span></p></td></tr><tr><td><p><span class="stt">&gt; (scan&amp;parse4 "{x:= y; u := v ; z := t}")</span></p></td></tr><tr><td><p><span class="stt">(compound-statement</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;</span><span class="stt">((assign-statement x (var-exp y))</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;</span><span class="stt">(assign-statement u (var-exp v))</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;</span><span class="stt">(assign-statement z (var-exp t))))</span></p></td></tr><tr><td><p><span class="stt">&gt; (scan&amp;parse4 "{x:= y; u := v ; z := t ;}")</span></p></td></tr><tr><td><p><span class="stt">Error in parsing: at line 1</span></p></td></tr><tr><td><p><span class="stt">Nonterminal &lt;seplist3&gt; can&#8217;t begin with string "}"</span></p></td></tr></table></blockquote><p>&#22312;&#26412;&#20363;&#20013;&#65292;&#36755;&#20837;&#23383;&#31526;&#20018;&#32467;&#23614;&#26377;&#19968;&#20010;&#20998;&#21495;&#65292;&#19982;&#35821;&#27861;&#19981;&#31526;&#65292;&#25152;&#20197;&#25253;&#38169;&#12290;</p></blockquote><p>&#31867;&#20284;&#20110; <span class="stt">arbno</span>&#65292;&#25105;&#20204;&#21487;&#20197;&#22312; <span class="stt">separated-list</span> &#20851;&#38190;&#23383;&#20013;&#25918;&#32622;&#20219;&#24847;&#38750;&#32456;&#32467;&#31526;&#24207;&#21015;&#12290;
-&#36825;&#26102;&#65292;&#33410;&#28857;&#20013;&#20250;&#26377;&#22810;&#20010;&#23383;&#27573;&#65292;&#27599;&#20010;&#23545;&#24212;&#19968;&#20010;&#38750;&#32456;&#32467;&#31526;&#65307;&#27599;&#20010;&#23383;&#27573;&#21253;&#21547;&#19968;&#20010;&#35821;&#27861;&#26641;&#21015;&#34920;&#12290;&#36825;&#21644;
-<span class="stt">arbno</span> &#29983;&#25104;&#30340;&#25968;&#25454;&#23436;&#20840;&#30456;&#21516;&#65307;&#19981;&#21516;&#30340;&#21482;&#26159;&#20855;&#20307;&#35821;&#27861;&#12290;</p><p>&#25105;&#20204;&#20598;&#23572;&#20250;&#23884;&#22871; <span class="stt">arbno</span> &#21644; <span class="stt">separated-list</span>&#12290;<span class="stt">arbno</span> &#20869;&#30340;&#38750;&#32456;&#32467;&#31526;&#29983;&#25104;&#19968;
-&#20010;&#21015;&#34920;&#65292;&#25152;&#20197; <span class="stt">arbno</span> &#20869;&#30340; <span class="stt">arbno</span> &#20869;&#30340;&#38750;&#32456;&#32467;&#31526;&#29983;&#25104;&#21015;&#34920;&#30340;&#21015;&#34920;&#12290;</p><p>&#20030;&#20010;&#20363;&#23376;&#65292;&#32771;&#34385;&#19982; <span class="stt">grammar-a4</span> &#31867;&#20284;&#30340; <span class="stt">compound-statement</span>&#65292;&#20294;&#23427;&#25903;&#25345;&#22810;&#36171;&#20540;&#65306;</p><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace">&nbsp;</span><span class="RktSym">grammar-a5</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktVal">'</span><span class="RktVal">(</span><span class="RktVal">(</span><span class="RktVal">statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">"{"</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">separated-list</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">separated-list</span><span class="hspace">&nbsp;</span><span class="RktVal">identifier</span><span class="hspace">&nbsp;</span><span class="RktVal">","</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">":="</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">separated-list</span><span class="hspace">&nbsp;</span><span class="RktVal">expression</span><span class="hspace">&nbsp;</span><span class="RktVal">","</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">";"</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">"}"</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">compound-statement</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">expression</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">number</span><span class="RktVal">)</span><span class="hspace">&nbsp;</span><span class="RktVal">lit-exp</span><span class="RktVal">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktVal">(</span><span class="RktVal">expression</span><span class="hspace">&nbsp;</span><span class="RktVal">(</span><span class="RktVal">identifier</span><span class="RktVal">)</span><span class="hspace">&nbsp;</span><span class="RktVal">var-exp</span><span class="RktVal">)</span><span class="RktVal">)</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><blockquote class="EoplCodeInset"><table cellspacing="0" cellpadding="0" class="SVerbatim"><tr><td><p><span class="stt">&gt; (define scan&amp;parse5</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="stt">(sllgen:make-string-parser scanner-spec-a grammar-a5))</span></p></td></tr></table></blockquote><p>&#23427;&#20026; <span class="stt">statement</span> &#29983;&#25104;&#22914;&#19979;&#25968;&#25454;&#31867;&#22411;&#65306;</p><blockquote class="EoplCodeInset"><blockquote class="SCodeFlow"><table cellspacing="0" cellpadding="0" class="RktBlk"><tr><td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span class="hspace">&nbsp;</span><span class="RktSym">statement</span><span class="hspace">&nbsp;</span><span class="RktSym">statement?</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">compound-statement</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">compound-statement4</span><span class="hspace">&nbsp;</span><span class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace">&nbsp;</span><span class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace">&nbsp;</span><span class="RktSym">symbol?</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr><tr><td><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="RktPn">(</span><span class="RktSym">compound-statement3</span><span class="hspace">&nbsp;</span><span class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace">&nbsp;</span><span class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace">&nbsp;</span><span class="RktSym">expression?</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span></td></tr></table></blockquote></blockquote><p>&#19968;&#33324;&#30340;&#20132;&#20114;&#22914;&#19979;&#65306;</p><blockquote class="EoplCodeInset"><table cellspacing="0" cellpadding="0" class="SVerbatim"><tr><td><p><span class="stt">&gt; (scan&amp;parse5 "{x,y := u,v ; z := 4; t1, t2 := 5, 6}")</span></p></td></tr><tr><td><p><span class="stt">(compound-statement</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;</span><span class="stt">((x y) (z) (t1 t2))</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;</span><span class="stt">(((var-exp u) (var-exp v))</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="stt">((lit-exp 4))</span></p></td></tr><tr><td><p><span class="stt"></span><span class="hspace">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="stt">((lit-exp 5) (lit-exp 6))))</span></p></td></tr></table></blockquote><p>&#36825;&#37324;&#65292;<span class="stt">compound-statement</span> &#26377;&#20004;&#20010;&#23383;&#27573;&#65306;&#26631;&#35782;&#31526;&#21015;&#34920;&#30340;&#21015;&#34920;&#65292;&#23545;&#24212;&#30340;&#34920;&#36798;&#24335;&#21015;&#34920;&#30340;&#21015;
-&#34920;&#12290;&#26412;&#20363;&#20013;&#65292;&#25105;&#20204;&#29992; <span class="stt">separated-list</span> &#20195;&#26367;&#20102; <span class="stt">arbno</span>&#65292;&#20294;&#26159; <span class="stt">arbno</span> &#20063;&#20250;&#29983;
-&#25104;&#21516;&#26679;&#30340;&#25968;&#25454;&#12290;
-<a name="(idx._(gentag._1741))"></a></p><blockquote class="EoplExercise"><p><a name="(elem._ex.B..1)"></a><span class="texMathInline">\textnormal{[}{\star}\textnormal{]}</span><span class="hspace">&nbsp;</span>&#19979;&#21015;&#35821;&#27861;&#25353;&#29031;&#36890;&#24120;&#30340;&#31639;&#26415;&#25805;&#20316;&#31526;&#20248;&#20808;&#32423;&#65292;&#23450;&#20041;&#20102;&#31639;&#26415;&#25805;&#20316;&#34920;&#36798;&#24335;&#65306;</p><p><span class="Iidentity">\begin{align*}        \mathit{Arith\mbox{-}expr} &amp;::= \mathit{Arith\mbox{-}term} \ \{\mathit{Additive\mbox{-}op}\ \mathit{Arith\mbox{-}term}\}^{*} \\[-3pt]
-       \mathit{Arith\mbox{-}term} &amp;::= \mathit{Arith\mbox{-}factor} \ \{\mathit{Multiplicative\mbox{-}op}\ \mathit{Arith\mbox{-}factor}\}^{*} \\[-3pt]
-     \mathit{Arith\mbox{-}factor} &amp;::= \mathit{Number} \\[-3pt]
-                                  &amp;::= <span class="stt">( </span><span class="Iidentity">\mathit{Arith\mbox{-}expr}</span><span class="stt"> )</span> \\[-3pt]
-     \mathit{Additive\mbox{-}op} &amp;::= <span class="stt">+</span> \mid <span class="stt">-</span> \\[-3pt]
-\mathit{Multiplicative\mbox{-}op} &amp;::= <span class="stt">*</span> \mid <span class="stt">/</span>\end{align*}</span></p><p>&#36825;&#22871;&#35821;&#27861;&#26159;&#35828;&#65292;&#27599;&#20010;&#31639;&#26415;&#34920;&#36798;&#24335;&#37117;&#26159;&#38750;&#31354;&#39033;&#24207;&#21015;&#30340;&#21644;&#65307;&#27599;&#19968;&#39033;&#37117;&#26159;&#38750;&#31354;&#22240;&#25968;&#24207;&#21015;&#30340;&#29983;&#25104;&#24335;&#65307;
-&#27599;&#20010;&#22240;&#25968;&#26159;&#19968;&#20010;&#24120;&#25968;&#25110;&#32773;&#25324;&#21495;&#34920;&#36798;&#24335;&#12290;</p><p>&#29992; SLLGEN &#20889;&#20986;&#35789;&#27861;&#35268;&#33539;&#21644;&#35821;&#27861;&#65292;&#26681;&#25454;&#36825;&#22871;&#35821;&#27861;&#36827;&#34892;&#25195;&#25551;&#21644;&#35299;&#26512;&#12290;&#39564;&#35777;&#36825;&#22871;&#35821;&#27861;&#33021;&#27491;&#30830;&#22788;&#29702;
-&#20248;&#20808;&#32423;&#65292;&#37027;&#20040;&#65292;<span class="stt">3+2*66-5</span> &#33021;&#27491;&#30830;&#20998;&#32452;&#20026; <span class="texMathInline">3 + (2 \times 66) - 5</span>&#12290;</p></blockquote><blockquote class="EoplExercise"><p><a name="(elem._ex.B..2)"></a><span class="texMathInline">\textnormal{[}{\star}{\star}\textnormal{]}</span><span class="hspace">&nbsp;</span>&#19978;&#38754;&#30340;&#35821;&#27861;&#20026;&#20160;&#20040;&#19981;&#33021;&#20889;&#25104; <span class="stt">separated-list</span>&#65311;</p></blockquote><blockquote class="EoplExercise"><p><a name="(elem._ex.B..3)"></a><span class="texMathInline">\textnormal{[}{\star}{\star}\textnormal{]}</span><span class="hspace">&nbsp;</span>&#23450;&#20041;&#19968;&#20010;&#35299;&#37322;&#22120;&#65292;&#21462;<span class="EoplExerciseRef"></span> &#20013;&#35299;&#26512;&#22120;&#29983;&#25104;&#30340;&#25277;&#35937;&#35821;&#27861;&#26641;&#65292;&#23558;&#20854;&#24403;&#20316;&#31639;&#26415;&#34920;
-&#36798;&#24335;&#27714;&#20540;&#12290;&#35299;&#26512;&#22120;&#22788;&#29702;&#36890;&#24120;&#30340;&#31639;&#26415;&#25805;&#20316;&#20248;&#20808;&#32423;&#65307;&#20294;&#35299;&#37322;&#22120;&#35201;&#22788;&#29702;&#20851;&#32852;&#24615;&#65292;&#21363;&#65292;&#30830;&#20445;&#21516;&#19968;&#20248;&#20808;
-&#32423;&#65288;&#27604;&#22914;&#21152;&#21644;&#20943;&#65289;&#30340;&#25805;&#20316;&#20174;&#24038;&#21521;&#21491;&#36827;&#34892;&#12290;&#30001;&#20110;&#36825;&#20123;&#34920;&#36798;&#24335;&#20013;&#27809;&#26377;&#21464;&#37327;&#65292;&#35299;&#37322;&#22120;&#19981;&#38656;&#35201;&#21462;&#29615;&#22659;
-&#21442;&#25968;&#12290;</p></blockquote><blockquote class="EoplExercise"><p><a name="(elem._ex.B..4)"></a><span class="texMathInline">\textnormal{[}{\star}{\star}\textnormal{]}</span><span class="hspace">&nbsp;</span>&#25193;&#23637;&#21069;&#19968;&#36947;&#32451;&#20064;&#20013;&#30340;&#35821;&#35328;&#21644;&#35299;&#37322;&#22120;&#65292;&#21152;&#20837;&#21464;&#37327;&#12290;&#36825;&#20010;&#26032;&#35299;&#37322;&#22120;&#38656;&#35201;&#29615;&#22659;&#21442;&#25968;&#12290;</p></blockquote><blockquote class="EoplExercise"><p><a name="(elem._ex.B..5)"></a><span class="texMathInline">\textnormal{[}{\star}\textnormal{]}</span><span class="hspace">&nbsp;</span>&#32473;&#35821;&#35328;&#21644;&#35299;&#37322;&#22120;&#28155;&#21152;&#21333;&#21442;&#25968;&#25805;&#20316;&#21462;&#21453;&#65292;&#20351;&#20043;&#33021;&#27491;&#30830;&#22788;&#29702;&#36755;&#20837; <span class="stt">3*-2</span>&#12290;</p></blockquote><div class="navsetbottom"><span class="navleft"><div class="nosearchform"></div>&nbsp;&nbsp;<span class="tocsettoggle">&nbsp;&nbsp;<a href="javascript:void(0);" title="show/hide table of contents" onclick="TocsetToggle();">contents</a></span></span><span class="navright">&nbsp;&nbsp;<a href="further-reading.html" title="backward to &quot;10 扩展阅读&quot;" data-pltdoc="x">&larr; prev</a>&nbsp;&nbsp;<a href="index.html" title="up to &quot;编程语言要素&quot;" data-pltdoc="x">up</a>&nbsp;&nbsp;<a href="bib.html" title="forward to &quot;参考书目&quot;" data-pltdoc="x">next &rarr;</a></span>&nbsp;</div></div></div><div id="contextindicator">&nbsp;</div></body></html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.8" />
+  <title>11 SLLGEN解析系统</title>
+  <link rel="stylesheet" type="text/css" href="scribble.css" title="default" />
+  <link rel="stylesheet" type="text/css" href="racket.css" title="default" />
+  <script type="text/javascript" src="scribble-common.js"></script>
+  <script src="katex/katex.min.js"></script>
+  <script src="onload.js"></script>
+</head>
+
+<body id="scribble-racket-lang-org">
+  <div class="tocset">
+    <div class="tocview">
+      <div class="tocviewlist tocviewlisttopspace">
+        <div class="tocviewtitle">
+          <table cellspacing="0" cellpadding="0">
+            <tr>
+              <td style="width: 1em;"><a href="javascript:void(0);" title="Expand/Collapse" class="tocviewtoggle"
+                  onclick="TocviewToggle(this," tocview_0");">▼</a></td>
+              <td></td>
+              <td><a href="index.html" class="tocviewlink" data-pltdoc="x">编程语言要素</a></td>
+            </tr>
+          </table>
+        </div>
+        <div class="tocviewsublisttop" style="display: block;" id="tocview_0">
+          <table cellspacing="0" cellpadding="0">
+            <tr>
+              <td align="right"></td>
+              <td><a href="fw-trans.html" class="tocviewlink" data-pltdoc="x">译者的话</a></td>
+            </tr>
+            <tr>
+              <td align="right"></td>
+              <td><a href="glo.html" class="tocviewlink" data-pltdoc="x">译名表</a></td>
+            </tr>
+            <tr>
+              <td align="right"></td>
+              <td><a href="fw.html" class="tocviewlink" data-pltdoc="x">序</a></td>
+            </tr>
+            <tr>
+              <td align="right"></td>
+              <td><a href="pf.html" class="tocviewlink" data-pltdoc="x">前言</a></td>
+            </tr>
+            <tr>
+              <td align="right"></td>
+              <td><a href="awk.html" class="tocviewlink" data-pltdoc="x">致谢</a></td>
+            </tr>
+            <tr>
+              <td align="right">1 </td>
+              <td><a href="isd.html" class="tocviewlink" data-pltdoc="x">归纳式数据集</a></td>
+            </tr>
+            <tr>
+              <td align="right">2 </td>
+              <td><a href="da.html" class="tocviewlink" data-pltdoc="x">数据抽象</a></td>
+            </tr>
+            <tr>
+              <td align="right">3 </td>
+              <td><a href="expr.html" class="tocviewlink" data-pltdoc="x">表达式</a></td>
+            </tr>
+            <tr>
+              <td align="right">4 </td>
+              <td><a href="state.html" class="tocviewlink" data-pltdoc="x">状态</a></td>
+            </tr>
+            <tr>
+              <td align="right">5 </td>
+              <td><a href="cpi.html" class="tocviewlink" data-pltdoc="x">传递续文的解释器</a></td>
+            </tr>
+            <tr>
+              <td align="right">6 </td>
+              <td><a href="cps.html" class="tocviewlink" data-pltdoc="x">续文传递风格</a></td>
+            </tr>
+            <tr>
+              <td align="right">7 </td>
+              <td><a href="types.html" class="tocviewlink" data-pltdoc="x">类型</a></td>
+            </tr>
+            <tr>
+              <td align="right">8 </td>
+              <td><a href="modules.html" class="tocviewlink" data-pltdoc="x">模块</a></td>
+            </tr>
+            <tr>
+              <td align="right">9 </td>
+              <td><a href="oac.html" class="tocviewlink" data-pltdoc="x">对象和类</a></td>
+            </tr>
+            <tr>
+              <td align="right">10 </td>
+              <td><a href="further-reading.html" class="tocviewlink" data-pltdoc="x">扩展阅读</a></td>
+            </tr>
+            <tr>
+              <td align="right">11 </td>
+              <td><a href="" class="tocviewselflink" data-pltdoc="x">SLLGEN解析系统</a></td>
+            </tr>
+            <tr>
+              <td align="right"></td>
+              <td><a href="bib.html" class="tocviewlink" data-pltdoc="x">参考书目</a></td>
+            </tr>
+            <tr>
+              <td align="right"></td>
+              <td><a href="indices.html" class="tocviewlink" data-pltdoc="x">索引</a></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="tocviewlist">
+        <table cellspacing="0" cellpadding="0">
+          <tr>
+            <td style="width: 1em;"><a href="javascript:void(0);" title="Expand/Collapse" class="tocviewtoggle"
+                onclick="TocviewToggle(this," tocview_1");">►</a></td>
+            <td>11 </td>
+            <td><a href="" class="tocviewselflink" data-pltdoc="x">SLLGEN解析系统</a></td>
+          </tr>
+        </table>
+        <div class="tocviewsublistbottom" style="display: none;" id="tocview_1">
+          <table cellspacing="0" cellpadding="0">
+            <tr>
+              <td align="right">11.1 </td>
+              <td><a href="#%28part._.B..1%29" class="tocviewlink" data-pltdoc="x">扫描</a></td>
+            </tr>
+            <tr>
+              <td align="right">11.2 </td>
+              <td><a href="#%28part._.B..2%29" class="tocviewlink" data-pltdoc="x">解析</a></td>
+            </tr>
+            <tr>
+              <td align="right">11.3 </td>
+              <td><a href="#%28part._.B..3%29" class="tocviewlink" data-pltdoc="x">SLLGEN 中的扫描器和解析器</a></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="tocsub">
+      <div class="tocsubtitle">On this page:</div>
+      <table class="tocsublist" cellspacing="0">
+        <tr>
+          <td><span class="tocsublinknumber">11.1<tt> </tt></span><a href="#%28part._.B..1%29" class="tocsubseclink"
+              data-pltdoc="x">扫描</a></td>
+        </tr>
+        <tr>
+          <td><span class="tocsublinknumber">11.2<tt> </tt></span><a href="#%28part._.B..2%29" class="tocsubseclink"
+              data-pltdoc="x">解析</a></td>
+        </tr>
+        <tr>
+          <td><span class="tocsublinknumber">11.3<tt> </tt></span><a href="#%28part._.B..3%29" class="tocsubseclink"
+              data-pltdoc="x">SLLGEN 中的扫描器和解析器</a></td>
+        </tr>
+        <tr>
+          <td><span class="tocsublinknumber"></span><a href="#%28part._.B..3-scanners%29" class="tocsubseclink"
+              data-pltdoc="x">定义扫描器</a></td>
+        </tr>
+        <tr>
+          <td><span class="tocsublinknumber"></span><a href="#%28part._.B..3-grammars%29" class="tocsubseclink"
+              data-pltdoc="x">定义语法</a></td>
+        </tr>
+        <tr>
+          <td><span class="tocsublinknumber"></span><a href="#%28part._.B..3-operations%29" class="tocsubseclink"
+              data-pltdoc="x">SLLGEN的操作</a></td>
+        </tr>
+        <tr>
+          <td><span class="tocsublinknumber"></span><a href="#%28part._.B..3-arbno%29" class="tocsubseclink"
+              data-pltdoc="x"><span class="stt">arbno</span>
+              和 <span class="stt">separated-<wbr></wbr>list</span> 模板关键字</a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="maincolumn">
+    <div class="main">
+      <div class="navsettop"><span class="navleft">
+          <div class="nosearchform"></div>  <span class="tocsettoggle">  <a href="javascript:void(0);"
+              title="show/hide table of contents" onclick="TocsetToggle();">contents</a></span>
+        </span><span class="navright">  <a href="further-reading.html" title="backward to " 10 扩展阅读"" data-pltdoc="x">←
+            prev</a>  <a href="index.html" title="up to " 编程语言要素"" data-pltdoc="x">up</a>  <a href="bib.html"
+            title="forward to " 参考书目"" data-pltdoc="x">next →</a></span> </div>
+      <h3>11<tt> </tt><a name="(part._sllgen-parsing-system)"></a>SLLGEN解析系统</h3>
+      <p><a name="(elem._sllgen)"></a></p>
+      <p>程序只是字符串。要处理程序，需要将这些字符归类为有意义的单元。这种归类通常分为两
+        个阶段：<span class="emph">扫描</span> 和<span class="emph">解析</span>。</p>
+      <p><a name="(idx._(gentag._1719))"></a>
+        扫描过程将字符序列分为单词，标点等等。这些单元叫做<span class="emph">词条</span>、<span class="emph">词
+          素</span>，或者最常见的<span class="emph">词牌</span>。解析过程将词牌序列组织成有层次的语法结构，如表
+        达式、语句和块。这就像用从句组织句子。</p>
+      <p>SLLGEN 是一个 Scheme <span class="emph">扩展包</span> (<span class="emph">package</span>)，用来生成解析器和扫描器。在本附录
+        中，我们首先介绍扫描和解析的基础，然后考虑如何用 SLLGEN 实现这些功能。</p>
+      <h4>11.1<tt> </tt><a name="(part._.B..1)"></a>扫描</h4>
+      <p><a name="(idx._(gentag._1720))"></a>
+        扫描问题如<span class="EoplFigureRef"></span> 所示。我们在其中展示了一小段程序，以及应如何将其
+        分割为基本单元。</p>
+      <p>字符流应如何分割为词条是语言规范的一部分。语言的这部分规范有时称为<span class="emph">词法规范</span> (<span class="emph">lexical
+          specification</span>)。典型的词法规范可能包括：
+        <a name="(idx._(gentag._1721))"></a>
+      </p>
+      <ul>
+        <li>
+          <p>任何空格和换行序列都等价于单个空格。</p>
+        </li>
+        <li>
+          <p>注释以 <span class="stt">%</span> 开头，到行尾截止。</p>
+        </li>
+        <li>
+          <p>标识符是以字母开头的字母和数字序列。</p>
+        </li>
+      </ul>
+      <blockquote class="EoplFigure">
+        <p><img src="task-of-scanner.svg" alt="扫描器的任务" width="379.5pt" height="268.5pt" /></p>
+        <blockquote class="caption">
+          <p>扫描器的任务<a name="(elem._fig-.B..1)"></a></p>
+        </blockquote>
+      </blockquote>
+      <p>扫描器的任务是遍历和分析输入，产生含有这些词条的数据结构。通常的语言中，扫描器可
+        能是一个过程，在调用时，由输入产生“下一个”词牌。</p>
+      <p>可以从头写出一个扫描器，但那又麻烦，又易错。更好的方式是写出指定语言的词法规范。
+        这一任务最常用的语言是<span class="emph">正则表达式</span> (<span class="emph">regular expressions</span>)。正则表达式语言定
+        义如下：<a name="(idx._(gentag._1722))"></a>
+        <span class="texMathDisplay">\mathit{R} ::= \mathit{Character} \mid \mathit{RR} \mid \mathit{R} \cup \mathit{R}
+          \mid \neg\mathit{Character}</span>
+      </p>
+      <p>每个正则表达式匹配一些字符串。我们可以用归纳法定义每个正则表达式匹配的字符串集合。</p>
+      <ul>
+        <li>
+          <p>匹配字符 <span class="texMathInline">c</span> 的字符串只含字符 <span class="texMathInline">c</span>。</p>
+        </li>
+        <li>
+          <p>匹配 <span class="texMathInline">\neg c</span> 的字符串只含一个 <span class="texMathInline">c</span> 之外的字符。</p>
+        </li>
+        <li>
+          <p>匹配 <span class="texMathInline">\mathit{RS}</span> 的字符串由匹配 <span class="texMathInline">\mathit{R}</span> 和匹配
+            <span class="texMathInline">\mathit{S}</span>
+            的字符串相接而得。这叫做<span class="emph">串联</span> (<span class="emph">concatenation</span>)。<a
+              name="(idx._(gentag._1723))"></a></p>
+        </li>
+        <li>
+          <p>匹配 <span class="texMathInline">\mathit{R} \cup \mathit{S}</span> 的字符串匹配 <span
+              class="texMathInline">\mathit{R}</span> 或
+            <span class="texMathInline">\mathit{S}</span>。这有时写作 <span class="texMathInline">\mathit{R} \mid
+              \mathit{S}</span>，
+            叫做<span class="emph">并联</span> (<span class="emph">alternation</span>)。<a name="(idx._(gentag._1724))"></a>
+          </p>
+        </li>
+        <li>
+          <p>匹配 <span class="texMathInline">\mathit{R}^{*}</span> 的字符串由 <span class="texMathInline">n</span> (<span
+              class="texMathInline">n \geq 0</span>) 个匹配
+            <span class="texMathInline">\mathit{R}</span> 的字符串串联而得。这叫做 <span class="texMathInline">\mathit{R}</span>
+            的<span class="emph">克莱尼闭包</span> (<span class="emph">Kleene
+              closure</span>)。
+            <a name="(idx._(gentag._1725))"></a>
+          </p>
+        </li>
+      </ul>
+      <p>看些例子更有帮助：</p>
+      <ul>
+        <li>
+          <p><span class="texMathInline">ab</span> 只匹配字符串 <span class="stt">ab</span>。</p>
+        </li>
+        <li>
+          <p><span class="texMathInline">ab \cup cd</span> 匹配字符串 <span class="stt">ab</span> 或 <span
+              class="stt">cd</span>。</p>
+        </li>
+        <li>
+          <p><span class="texMathInline">(ab \cup cd)(ab \cup cd \cup ef)</span> 匹配字符串 <span
+              class="stt">abab</span>、<span class="stt">abcd</span>、
+            <span class="stt">abef</span>、<span class="stt">cdab</span>、<span class="stt">cdcd</span> 和 <span
+              class="stt">cdef</span>。
+          </p>
+        </li>
+        <li>
+          <p><span class="texMathInline">(ab)^{*}</span> 匹配空字符串、<span class="stt">ab</span>、<span
+              class="stt">abab</span>、<span class="stt">ababab</span>、<span class="stt">abababab</span>、
+            <span class="stt">...</span>。
+          </p>
+        </li>
+        <li>
+          <p><span class="texMathInline">(ab \cup cd)^{*}</span> 匹配空字符串、<span class="stt">ab</span>、<span
+              class="stt">cd</span>、<span class="stt">abab</span>、<span class="stt">abcd</span>、
+            <span class="stt">cdab</span>、<span class="stt">cdcd</span>、<span class="stt">ababab</span>、<span
+              class="stt">...cdcdcd</span>、<span class="stt">...</span>。
+          </p>
+        </li>
+      </ul>
+      <p>上面的例子解释了不同操作的优先级，所以，<span class="texMathInline">{ab}^{*} \cup cd</span> 表示 <span
+          class="texMathInline">(a(b^{*}))
+          \cup (cd)</span>。</p>
+      <p>我们例子中的规范可用正则表达式写作</p>
+      <blockquote class="EoplCodeInset">
+        <table cellspacing="0" cellpadding="0" class="SVerbatim">
+          <tr>
+            <td>
+              <p><span class="texMathInline">whitespace = (space \cup newline)(space \cup newline)^{*}</span><span
+                  class="stt"></span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="texMathInline">comment = <span class="stt">%</span>(\neg
+                  newline)^{*}</span><span class="stt"></span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="texMathInline">identifier = letter(letter \cup digit)^{*}</span>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </blockquote>
+      <p><a name="(idx._(gentag._1726))"></a>
+        扫描器用正则表达式获取词牌时，规则总是取<span class="emph">最长</span>匹配。所以 <span class="stt">xyz</span> 扫描为一
+        个标识符，而非三个。</p>
+      <p>扫描器找到一个词牌时，它返回的数据结构至少包含下列数据：</p>
+      <ul>
+        <li>
+          <p>一个<span class="emph">类别</span> (<span class="emph">class</span>)，描述词牌的种类。类别的集合是词法规范的一部分。
+            SLLGEN 使用 Scheme 符号区分这些类别；其他语法分析器可能使用其他数据结构。</p>
+        </li>
+        <li>
+          <p>一段数据，描述特定词牌。这段数据的性质也是词法规范的一部分。在我们的系统
+            中，数据如下：标识符的数据是由词牌字符串产生的 Scheme 符号；数字的数据是由数字
+            字面值描述的数值；字符串字面值的数据就是字符串。字符串数据用作关键字和标点。在
+            没有符号的实现语言中，可以改用字符串（标识符的名字），或者以标识符为索引的哈希
+            表（<span class="emph">符号表</span> (<span class="emph">symbol table</span>)）条目。</p>
+        </li>
+        <li>
+          <p>一段数据，描述该词牌在输入中的位置。解析器用这一信息帮助程序员定位语法错
+            误。</p>
+        </li>
+      </ul>
+      <p>通常，词牌的内部结构只与扫描器和解析器相关，所以我们不再详加介绍。
+        <a name="(idx._(gentag._1727))"></a>
+        <a name="(idx._(gentag._1728))"></a>
+      </p>
+      <h4>11.2<tt> </tt><a name="(part._.B..2)"></a>解析</h4>
+      <p><a name="(idx._(gentag._1729))"></a>
+        解析过程将词牌序列组织成有层次的语法结构，如表达式，语句和块。这就像用从句组织句
+        子。语言的语法结构通常由 BNF 定义，也叫做<span class="emph">上下文无
+          关语法</span> (<span class="emph">context-free grammar</span>)（<a href="isd.html#%28part._s1..1..2%29"
+          data-pltdoc="x">语法定义法</a>）。
+        <a name="(idx._(gentag._1730))"></a>
+        <a name="(idx._(gentag._1731))"></a>
+        <a name="(idx._(gentag._1732))"></a>
+      </p>
+      <p>
+      <div class="SIntrapara"><a name="(idx._(gentag._1733))"></a>解析器输入为词牌序列，输出为一棵抽象语法树
+        （<a href="da.html#%28part._s2..5%29" data-pltdoc="x">抽象语法及其表示</a>）。SLLGEN 生成的抽象语法树可用 <span
+          class="stt">define-datatype</span> 描述。
+        <a name="(idx._(gentag._1734))"></a>
+        对给定的语法，每个非终结符都对应一个数据类型。以每个非终结符为左边内容的生成式都
+        对应一个变体。式子右边出现的每个非终结符、标识符和数字都对应变体中的一个字段。
+        <a href="da.html#%28part._s2..5%29" data-pltdoc="x">抽象语法及其表示</a>有一个简单示例。当语法中有多个非终结符时，可以考虑
+        <span class="EoplExerciseRef"></span> 中的语法。
+        <a name="(idx._(gentag._1735))"></a>
+      </div>
+      <div class="SIntrapara">
+        <blockquote class="Small">
+          <p><span class="Iidentity">\begin{align*} \mathit{Statement} &::= <span class="stt">{ </span><span
+                class="Iidentity">\mathit{Statement}</span><span class="stt"> ; </span><span
+                class="Iidentity">\mathit{Statement}</span><span class="stt"> }</span> \\[-3pt]
+              &::= <span class="stt">while </span><span class="Iidentity">\mathit{Expression}</span><span class="stt">
+                do </span><span class="Iidentity">\mathit{Statement}</span> \\[-3pt]
+              &::= <span class="Iidentity">\mathit{Identifier}</span><span class="stt"> := </span><span
+                class="Iidentity">\mathit{Expression}</span> \\[-3pt]
+              \mathit{Expression} &::= \mathit{Identifier} \\[-3pt]
+              &::= <span class="stt">(</span><span class="Iidentity">\mathit{Expression}</span><span class="stt"> -
+              </span><span class="Iidentity">\mathit{Expression}</span><span class="stt">)</span>\end{align*}</span></p>
+        </blockquote>
+      </div>
+      </p>
+      <p>这个语法产生的树由如下数据类型描述：</p>
+      <blockquote class="SubFlow">
+        <blockquote class="EoplCodeInset">
+          <blockquote class="SCodeFlow">
+            <table cellspacing="0" cellpadding="0" class="RktBlk">
+              <tr>
+                <td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span
+                    class="hspace"> </span><span class="RktSym">statement</span><span class="hspace"> </span><span
+                    class="RktSym">statement?</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">  </span><span class="RktPn">(</span><span
+                    class="RktSym">compound-statement</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">stmt1</span><span
+                    class="hspace"> </span><span class="RktSym">statement?</span><span class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">stmt2</span><span
+                    class="hspace"> </span><span class="RktSym">statement?</span><span class="RktPn">)</span><span
+                    class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">  </span><span class="RktPn">(</span><span
+                    class="RktSym">while-statement</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">test</span><span
+                    class="hspace"> </span><span class="RktSym">expression?</span><span class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">body</span><span
+                    class="hspace"> </span><span class="RktSym">statement?</span><span class="RktPn">)</span><span
+                    class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">  </span><span class="RktPn">(</span><span
+                    class="RktSym">assign-statement</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">lhs</span><span
+                    class="hspace"> </span><span class="RktSym">symbol?</span><span class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">rhs</span><span
+                    class="hspace"> </span><span class="RktSym">expression?</span><span class="RktPn">)</span><span
+                    class="RktPn">)</span><span class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace"> </span></td>
+              </tr>
+              <tr>
+                <td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span
+                    class="hspace"> </span><span class="RktSym">expression</span><span class="hspace"> </span><span
+                    class="RktSym">expression?</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">  </span><span class="RktPn">(</span><span class="RktSym">var-exp</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">var</span><span
+                    class="hspace"> </span><span class="RktSym">symbol?</span><span class="RktPn">)</span><span
+                    class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">  </span><span class="RktPn">(</span><span class="RktSym">diff-exp</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">exp1</span><span
+                    class="hspace"> </span><span class="RktSym">expression?</span><span class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">exp2</span><span
+                    class="hspace"> </span><span class="RktSym">expression?</span><span class="RktPn">)</span><span
+                    class="RktPn">)</span><span class="RktPn">)</span></td>
+              </tr>
+            </table>
+          </blockquote>
+        </blockquote>
+        <p>式子右边的每个非终结符对应的树作为一个字段；标识符对应的符号作为一个字段。变体名
+          字在用 SLLGEN 写语法时指定。字段名是自动生成的；这里，我们给字段起了一些便于记忆
+          的名字。例如，输入</p>
+        <blockquote class="EoplCodeInset">
+          <table cellspacing="0" cellpadding="0" class="SVerbatim">
+            <tr>
+              <td>
+                <p><span class="stt">{x := foo; while x do x := (x - bar)}</span></p>
+              </td>
+            </tr>
+          </table>
+        </blockquote>
+        <p>产生输出</p>
+        <blockquote class="EoplCodeInset">
+          <p>
+          <div class="SIntrapara">
+            <blockquote class="SCodeFlow">
+              <table cellspacing="0" cellpadding="0" class="RktBlk">
+                <tr>
+                  <td><span class="RktVal">#</span><span class="RktVal">(</span><span
+                      class="RktVal">struct:compound-statement</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">   </span><span class="RktVal">#</span><span class="RktVal">(</span><span
+                      class="RktVal">struct:assign-statement</span><span class="hspace"> </span><span
+                      class="RktVal">x</span><span class="hspace"> </span><span class="RktVal">#</span><span
+                      class="RktVal">(</span><span class="RktVal">struct:var-exp</span><span
+                      class="hspace"> </span><span class="RktVal">foo</span><span class="RktVal">)</span><span
+                      class="RktVal">)</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">   </span><span class="RktVal">#</span><span class="RktVal">(</span><span
+                      class="RktVal">struct:while-statement</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">      </span><span class="RktVal">#</span><span class="RktVal">(</span><span
+                      class="RktVal">struct:var-exp</span><span class="hspace"> </span><span
+                      class="RktVal">x</span><span class="RktVal">)</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">      </span><span class="RktVal">#</span><span class="RktVal">(</span><span
+                      class="RktVal">struct:assign-statement</span><span class="hspace"> </span><span
+                      class="RktVal">x</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">         </span><span class="RktVal">#</span><span
+                      class="RktVal">(</span><span class="RktVal">struct:diff-exp</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">            </span><span class="RktVal">#</span><span
+                      class="RktVal">(</span><span class="RktVal">struct:var-exp</span><span
+                      class="hspace"> </span><span class="RktVal">x</span><span class="RktVal">)</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">            </span><span class="RktVal">#</span><span
+                      class="RktVal">(</span><span class="RktVal">struct:var-exp</span><span
+                      class="hspace"> </span><span class="RktVal">bar</span><span class="RktVal">)</span><span
+                      class="RktVal">)</span><span class="RktVal">)</span><span class="RktVal">)</span><span
+                      class="RktVal">)</span></td>
+                </tr>
+              </table>
+            </blockquote>
+          </div>
+          <div class="SIntrapara"><a name="(idx._(gentag._1736))"></a></div>
+          </p>
+        </blockquote>
+      </blockquote>
+      <h4>11.3<tt> </tt><a name="(part._.B..3)"></a>SLLGEN 中的扫描器和解析器</h4>
+      <h5><a name="(part._.B..3-scanners)"></a>定义扫描器</h5>
+      <p><a name="(idx._(gentag._1737))"></a>
+        在 SLLGEN 中，扫描器用正则表达式定义。我们的例子用 SLLGEN，要写成下面这样：</p>
+      <blockquote class="EoplCodeInset">
+        <blockquote class="SCodeFlow">
+          <table cellspacing="0" cellpadding="0" class="RktBlk">
+            <tr>
+              <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                  class="RktSym">scanner-spec-a</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktVal">'</span><span class="RktVal">(</span><span
+                  class="RktVal">(</span><span class="RktVal">white-sp</span><span class="hspace"> </span><span
+                  class="RktVal">(</span><span class="RktVal">whitespace</span><span class="RktVal">)</span><span
+                  class="hspace"> </span><span class="RktVal">skip</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktVal">(</span><span class="RktVal">comment</span><span
+                  class="hspace"> </span><span class="RktVal">(</span><span class="RktVal">"%"</span><span
+                  class="hspace"> </span><span class="RktVal">(</span><span class="RktVal">arbno</span><span
+                  class="hspace"> </span><span class="RktVal">(</span><span class="RktVal">not</span><span
+                  class="hspace"> </span><span class="RktVal">#\newline</span><span class="RktVal">)</span><span
+                  class="RktVal">)</span><span class="RktVal">)</span><span class="hspace"> </span><span
+                  class="RktVal">skip</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktVal">(</span><span
+                  class="RktVal">identifier</span><span class="hspace"> </span><span class="RktVal">(</span><span
+                  class="RktVal">letter</span><span class="hspace"> </span><span class="RktVal">(</span><span
+                  class="RktVal">arbno</span><span class="hspace"> </span><span class="RktVal">(</span><span
+                  class="RktVal">or</span><span class="hspace"> </span><span class="RktVal">letter</span><span
+                  class="hspace"> </span><span class="RktVal">digit</span><span class="RktVal">)</span><span
+                  class="RktVal">)</span><span class="RktVal">)</span><span class="hspace"> </span><span
+                  class="RktVal">symbol</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktVal">(</span><span class="RktVal">number</span><span
+                  class="hspace"> </span><span class="RktVal">(</span><span class="RktVal">digit</span><span
+                  class="hspace"> </span><span class="RktVal">(</span><span class="RktVal">arbno</span><span
+                  class="hspace"> </span><span class="RktVal">digit</span><span class="RktVal">)</span><span
+                  class="RktVal">)</span><span class="hspace"> </span><span class="RktVal">number</span><span
+                  class="RktVal">)</span><span class="RktVal">)</span><span class="RktPn">)</span></td>
+            </tr>
+          </table>
+        </blockquote>
+      </blockquote>
+      <p>如果扫描器要和处理关键字或标点（如 <span class="stt">while</span> 或 <span class="stt">=</span>）的解析器共用，不需要手
+        动将这些放入扫描器中；解析器生成器会自动添加它们。</p>
+      <p>SLLGEN 中的扫描器定义是满足如下语法的列表：</p>
+      <blockquote class="Small">
+        <p><span class="Iidentity">\begin{align*} \mathit{Scanner\mbox{-}spec} &::= <span class="stt">(</span><span
+              class="Iidentity">\{\mathit{Regexp\mbox{-}and\mbox{-}action}\}^{*}</span><span class="stt">)</span>
+            \\[-3pt]
+            \mathit{Regexp\mbox{-}and\mbox{-}action} &::= <span class="stt">(</span><span
+              class="Iidentity">\mathit{Name}</span><span class="stt"> (</span><span
+              class="Iidentity">\{\mathit{Regexp}\}^{*}</span><span class="stt">) </span><span
+              class="Iidentity">\mathit{Action}</span><span class="stt">)</span> \\[-3pt]
+            \mathit{Name} &::= \mathit{Symbol} \\[-3pt]
+            \mathit{Regexp} &::= \mathit{String} \mid <span class="stt">letter</span> \mid <span
+              class="stt">digit</span> \mid <span class="stt">whitespace</span> \mid <span class="stt">any</span>
+            \\[-3pt]
+            &::= <span class="stt">(not </span><span class="Iidentity">\mathit{Character}</span><span
+              class="stt">)</span> \mid <span class="stt">(or </span><span
+              class="Iidentity">\{\mathit{Regexp}\}^{*}</span><span class="stt">)</span> \\[-3pt]
+            &::= <span class="stt">(arbno </span><span class="Iidentity">\mathit{Regexp}</span><span
+              class="stt">)</span> \mid <span class="stt">(concat </span><span
+              class="Iidentity">\{\mathit{Regexp}\}^{*}</span><span class="stt">)</span> \\[-3pt]
+            \mathit{Action} &::= <span class="stt">skip</span> \mid <span class="stt">symbol</span> \mid <span
+              class="stt">number</span> \mid <span class="stt">string</span>\end{align*}</span></p>
+      </blockquote>
+      <p>列表中的每一项都定义了一个正则表达式，定义包含名字、一系列正则表达式，以及匹配成
+        功时的动作。名字是一个 Scheme 符号，表示词牌的类别。</p>
+      <p>由于扫描器中的顶层<span class="emph">正则表达式</span> (<span class="emph">regexp</span>) 几乎总是串联而得，定义的第二部分是
+        一系列正则表达式。正则表达式可以是一个字符串；可以是预先定义的四个测试器之一：
+        <span class="stt">letter</span>（匹配任何字母），<span class="stt">digit</span>（匹配任何数字），<span
+          class="stt">whitespace</span>（匹配任
+        何 Scheme 空白字符），以及 <span class="stt">any</span>（匹配任意字符）；可以是一个去反字符；也可以
+        是组合而得的正则表达式，采用 Scheme 式的语法，以 <span class="stt">or</span> 表示并联，以
+        <span class="stt">concat</span> 表示串联，以 <span class="stt">arbno</span> 表示克莱尼星号。
+      </p>
+      <p>扫描器工作时，把字符收集到一个缓存中。当扫描器断定找出了定义中所有正则表达式的最
+        长匹配时，它执行对应正则表达式的<span class="emph">动作</span>。</p>
+      <p>动作为下列之一：</p>
+      <ul>
+        <li>
+          <p>符号 <span class="stt">skip</span>。这表示词牌结束，但不产生任何词牌。扫描器继续处理字符串，
+            找出下一个词牌。这一动作用于空白字符和注释。</p>
+        </li>
+        <li>
+          <p>符号 <span class="stt">symbol</span>。缓存中的字符转换为一个 Scheme 符号，并产生一个词牌，以
+            指定类别名为其类别，以对应符号为其数据。</p>
+        </li>
+        <li>
+          <p>符号 <span class="stt">number</span>。缓存中的字符转换为一个 Scheme 数值，并产生一个词牌，以
+            指定类别名为其类别，以对应数值为其数据。</p>
+        </li>
+        <li>
+          <p>符号 <span class="stt">string</span>。缓存中的字符转换为一个 Scheme 字符串，并产生一个词牌，
+            以指定类别名为其类别，以对应字符串为其数据。</p>
+        </li>
+      </ul>
+      <p>如果两个正则表达式同时为最长匹配，<span class="stt">string</span> 优先于 <span class="stt">symbol</span>。这条规则意味着
+        关键字会按关键字处理，而非标识符。
+        <a name="(idx._(gentag._1738))"></a>
+      </p>
+      <h5><a name="(part._.B..3-grammars)"></a>定义语法</h5>
+      <p><a name="(idx._(gentag._1739))"></a>
+        SLLGEN 还包含一种定义语法的语言。上面的简单语法用 SLLGEN 写作</p>
+      <blockquote class="EoplCodeInset">
+        <blockquote class="SCodeFlow">
+          <table cellspacing="0" cellpadding="0" class="RktBlk">
+            <tr>
+              <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                  class="RktSym">grammar-a1</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktVal">'</span><span class="RktVal">(</span><span
+                  class="RktVal">(</span><span class="RktVal">statement</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">(</span><span class="RktVal">"{"</span><span
+                  class="hspace"> </span><span class="RktVal">statement</span><span class="hspace"> </span><span
+                  class="RktVal">";"</span><span class="hspace"> </span><span class="RktVal">statement</span><span
+                  class="hspace"> </span><span class="RktVal">"}"</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">compound-statement</span><span
+                  class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktVal">(</span><span class="RktVal">statement</span>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">(</span><span
+                  class="RktVal">"while"</span><span class="hspace"> </span><span class="RktVal">expression</span><span
+                  class="hspace"> </span><span class="RktVal">"do"</span><span class="hspace"> </span><span
+                  class="RktVal">statement</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">while-statement</span><span
+                  class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktVal">(</span><span class="RktVal">statement</span>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">(</span><span
+                  class="RktVal">identifier</span><span class="hspace"> </span><span class="RktVal">":="</span><span
+                  class="hspace"> </span><span class="RktVal">expression</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">assign-statement</span><span
+                  class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktVal">(</span><span class="RktVal">expression</span>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">(</span><span
+                  class="RktVal">identifier</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">var-exp</span><span class="RktVal">)</span>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktVal">(</span><span class="RktVal">expression</span>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">(</span><span class="RktVal">"("</span><span
+                  class="hspace"> </span><span class="RktVal">expression</span><span class="hspace"> </span><span
+                  class="RktVal">"-"</span><span class="hspace"> </span><span class="RktVal">expression</span><span
+                  class="hspace"> </span><span class="RktVal">")"</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">diff-exp</span><span
+                  class="RktVal">)</span><span class="RktVal">)</span><span class="RktPn">)</span></td>
+            </tr>
+          </table>
+        </blockquote>
+      </blockquote>
+      <p>SLLGEN 中的语法是由下列语法描述的列表：</p>
+      <blockquote class="Small">
+        <p><a name="(idx._(gentag._1740))"></a>
+          <span class="Iidentity">\begin{align*} \mathit{Grammar} &::= <span class="stt">(</span><span
+              class="Iidentity">\{\mathit{Production}\}^{*}</span><span class="stt">)</span> \\[-3pt]
+            \mathit{Production} &::= <span class="stt">(</span><span class="Iidentity">\mathit{Lhs}</span><span
+              class="stt"> (</span><span class="Iidentity">\{\mathit{Rhs\mbox{-}item}\}^{*}</span><span class="stt">)
+            </span><span class="Iidentity">\mathit{Prod\mbox{-}name}</span><span class="stt">)</span> \\[-3pt]
+            \mathit{Lhs} &::= \mathit{Symbol} \\[-3pt]
+            \mathit{Rhs\mbox{-}item} &::= \mathit{Symbol} \mid \mathit{String} \\[-3pt]
+            &::= <span class="stt">(arbno </span><span class="Iidentity">\mathit{\{Rhs\mbox{-}item\}^{*}}</span><span
+              class="stt">)</span> \\[-3pt]
+            &::= <span class="stt">(separated-list </span><span
+              class="Iidentity">\mathit{\{Rhs\mbox{-}item\}^{*}}</span><span class="stt"> </span><span
+              class="Iidentity">\mathit{String}</span><span class="stt">)</span> \\[-3pt]
+            \mathit{Prod\mbox{-}name} &::= \mathit{Symbol}\end{align*}</span>
+        </p>
+      </blockquote>
+      <p>语法是生成式列表。第一个生成式的左边是语法的起始符号。每个生成式包含左边（一个非
+        终结符号）、右边（<span class="texMathInline">rhs\mbox{-}item</span> 的列表），以及生成式名字。生成式的右边是符
+        号或者字符串列表。符号是非终结符；字符串是字符串字面值。式子右边也可以包含
+        <span class="stt">arbno</span> 或 <span class="stt">separated-list</span>；这些留待下面讨论。生成式的名字是一个符号，成
+        为 <span class="stt">define-datatype</span> 中对应生成式的变体名。
+      </p>
+      <p>在 SLLGEN 中，解析器必须在仅获知以下内容的条件下，通过语法断定生成式：(1) 正在寻
+        找哪一非终结符，(2) 正在解析的字符串中的首个符号（词牌）。这种形式的语法叫做
+        <span class="texMathInline">LL(1)</span> 语法；SLLGEN 表示 Scheme <span class="texMathInline">LL(1)</span> 解析器<span
+          style="font-weight: bold">生成</span>器（Scheme
+        <span class="texMathInline">LL(1)</span> parser GENerator）。在实践中，这有些过于严格了，但足以应付本书需要。如
+        果输入语法不满足这一条件，SLLGEN 会给出一条警告。
+      </p>
+      <h5><a name="(part._.B..3-operations)"></a>SLLGEN的操作</h5>
+      <p>SLLGEN 包含几个过程，将扫描器和语法结合起来，形成可以执行的解析器。
+        <span class="EoplFigureRef"></span> 展示了用 SLLGEN 定义语言扫描器和解析器的例子。
+      </p>
+      <p>过程 <span class="stt">sllgen:make-define-datatypes</span> 负责为语法的每个生成式产生一个
+        <span class="stt">define-datatype</span> 表达式，供 <span class="stt">cases</span> 使用。过程
+        <span class="stt">sllgen:list-define-datatypes</span> 也生成 <span class="stt">define-datatype</span> 表达式，但是会以列
+        表形式返回，而非执行它们。由这些过程生成的字段名不够直观，因为语法中没有这些信息；
+        要得到更好的字段名，需要写出 <span class="stt">define-datatype</span>。
+      </p>
+      <p>过程 <span class="stt">sllgen:make-string-scanner</span> 取一扫描器和一语法，生成一个扫描过程。得出
+        的过程可以处理一个字符串，得到一个词牌列表。语法用来给得到的扫描过程添加关键字。
+        这一过程主要用于调试。</p>
+      <p>过程 <span class="stt">sllgen:make-string-parser</span> 生成一个解析器。解析器是一过程，它取一字符串，
+        用扫描器扫描它，用语法解析它，然后返回一棵抽象语法树。像
+        <span class="stt">sllgen:make-string-scanner</span> 一样，语法中的字符串字面值包含在扫描器中。
+      </p>
+      <p>SLLGEN 也可以用来生成读入-求值-打印循环（<a href="expr.html#%28part._s3..1%29" data-pltdoc="x">规范和实现策略</a>）。过程
+        <span class="stt">sllgen:make-stream-parser</span> 与字符串版本类似，但是它的输入是字符流，输出是词
+        牌流。过程 <span class="stt">sllgen:make-rep-loop</span> 取一字符串，一个单参数过程，一个流式解析器，
+        生成一个读入-求值-打印循环，以指定字符串为标准输出中的提示符，从标准输入读入字符，
+        解析它们，然后以指定过程处理抽象语法树，将结果打印出来。例如：
+      </p>
+      <blockquote class="EoplFigure">
+        <p>
+        <div class="SIntrapara">[!t]</div>
+        <div class="SIntrapara">
+          <blockquote class="SCodeFlow">
+            <table cellspacing="0" cellpadding="0" class="RktBlk">
+              <tr>
+                <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                    class="RktSym">scanner-spec-1</span><span class="hspace"> </span><span
+                    class="RktSym">...</span><span class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace"> </span></td>
+              </tr>
+              <tr>
+                <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                    class="RktSym">grammar-1</span><span class="hspace"> </span><span class="RktSym">...</span><span
+                    class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace"> </span></td>
+              </tr>
+              <tr>
+                <td><span class="RktPn">(</span><span class="RktSym">sllgen:make-define-datatypes</span><span
+                    class="hspace"> </span><span class="RktSym">scanner-spec-1</span><span class="hspace"> </span><span
+                    class="RktSym">grammar-1</span><span class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace"> </span></td>
+              </tr>
+              <tr>
+                <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                    class="RktSym">list-the-datatypes</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">  </span><span class="RktPn">(</span><span class="RktSym">lambda</span><span
+                    class="hspace"> </span><span class="RktPn">(</span><span class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span
+                    class="RktSym">sllgen:list-define-datatypes</span><span class="hspace"> </span><span
+                    class="RktSym">scanner-spec-1</span><span class="hspace"> </span><span
+                    class="RktSym">grammar-1</span><span class="RktPn">)</span><span class="RktPn">)</span><span
+                    class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace"> </span></td>
+              </tr>
+              <tr>
+                <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                    class="RktSym">just-scan</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">  </span><span class="RktPn">(</span><span
+                    class="RktSym">sllgen:make-string-scanner</span><span class="hspace"> </span><span
+                    class="RktSym">scanner-spec-1</span><span class="hspace"> </span><span
+                    class="RktSym">grammar-1</span><span class="RktPn">)</span><span class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace"> </span></td>
+              </tr>
+              <tr>
+                <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                    class="RktSym">scan&parse</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">  </span><span class="RktPn">(</span><span
+                    class="RktSym">sllgen:make-string-parser</span><span class="hspace"> </span><span
+                    class="RktSym">scanner-spec-1</span><span class="hspace"> </span><span
+                    class="RktSym">grammar-1</span><span class="RktPn">)</span><span class="RktPn">)</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace"> </span></td>
+              </tr>
+              <tr>
+                <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                    class="RktSym">read-eval-print</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">  </span><span class="RktPn">(</span><span
+                    class="RktSym">sllgen:make-rep-loop</span><span class="hspace"> </span><span class="RktVal">"-->
+                    "</span><span class="hspace"> </span><span class="RktSym">value-of--program</span></td>
+              </tr>
+              <tr>
+                <td><span class="hspace">    </span><span class="RktPn">(</span><span
+                    class="RktSym">sllgen:make-stream-parser</span><span class="hspace"> </span><span
+                    class="RktSym">scanner-spec-1</span><span class="hspace"> </span><span
+                    class="RktSym">grammar-1</span><span class="RktPn">)</span><span class="RktPn">)</span><span
+                    class="RktPn">)</span></td>
+              </tr>
+            </table>
+          </blockquote>
+        </div>
+        </p>
+        <blockquote class="caption">
+          <p>使用 SLLGEN<a name="(elem._fig-.B..2)"></a></p>
+        </blockquote>
+      </blockquote>
+      <blockquote class="EoplCodeInset">
+        <table cellspacing="0" cellpadding="0" class="SVerbatim">
+          <tr>
+            <td>
+              <p><span class="stt">> (define read-eval-print</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">    </span><span class="stt">(sllgen:make-rep-loop "--> "
+                  eval-program</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">      </span><span
+                  class="stt">(sllgen:make-stream-parser</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">        </span><span class="stt">scanner-spec-3-1</span>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">        </span><span class="stt">grammar-3-1)))</span>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt">> (read-eval-print)</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt">--> 5</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt">5</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt">--> add1(2)</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt">3</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt">--> +(add1(2),-(6,4))</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt">5</span></p>
+            </td>
+          </tr>
+        </table>
+      </blockquote>
+      <p>控制流程从这一循环返回 Scheme 读入-求值-打印循环的方式由系统决定。</p>
+      <h5><a name="(part._.B..3-arbno)"></a><span class="stt">arbno</span>
+        和 <span class="stt">separated-list</span> 模板关键字</h5>
+      <p>
+      <div class="SIntrapara"><span class="stt">arbno</span> 关键字即语法中的克莱尼星号：它匹配重复任意次数的条目。例如，生成式
+      </div>
+      <div class="SIntrapara">
+        <blockquote class="Small">
+          <p><span class="texMathDisplay">\mathit{statement} ::= <span class="stt">{ </span><span
+                class="texMathInline">\{statement <span class="stt">;</span>\}^{*}</span><span class="stt">
+                }</span></span></p>
+        </blockquote>
+      </div>
+      <div class="SIntrapara">
+        <blockquote class="SubFlow">
+          <p>在 SLLGEN 中可写作</p>
+          <blockquote class="EoplCodeInset">
+            <blockquote class="SCodeFlow">
+              <table cellspacing="0" cellpadding="0" class="RktBlk">
+                <tr>
+                  <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                      class="RktSym">grammar-a2</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">  </span><span class="RktVal">'</span><span class="RktVal">(</span><span
+                      class="RktVal">(</span><span class="RktVal">statement</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">      </span><span class="RktVal">(</span><span
+                      class="RktVal">"{"</span><span class="hspace"> </span><span class="RktVal">(</span><span
+                      class="RktVal">arbno</span><span class="hspace"> </span><span class="RktVal">statement</span><span
+                      class="hspace"> </span><span class="RktVal">";"</span><span class="RktVal">)</span><span
+                      class="hspace"> </span><span class="RktVal">"}"</span><span class="RktVal">)</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">      </span><span class="RktVal">compound-statement</span><span
+                      class="RktVal">)</span></td>
+                </tr>
+                <tr>
+                  <td><span class="hspace">     </span><span class="RktVal">...</span><span class="RktVal">)</span><span
+                      class="RktPn">)</span></td>
+                </tr>
+              </table>
+            </blockquote>
+          </blockquote>
+          <p>这匹配一条复合语句，由任意数量分号分隔的语句序列组成。</p>
+        </blockquote>
+      </div>
+      </p>
+      <p><span class="stt">arbno</span> 在抽象语法树中对应单个字段。该字段包含一个<span class="emph">列表</span>，由 <span
+          class="stt">arbno</span>
+        内的非终结符数据组成。我们的例子生成如下数据类型：</p>
+      <blockquote class="EoplCodeInset">
+        <blockquote class="SCodeFlow">
+          <table cellspacing="0" cellpadding="0" class="RktBlk">
+            <tr>
+              <td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span
+                  class="hspace"> </span><span class="RktSym">statement</span><span class="hspace"> </span><span
+                  class="RktSym">statement?</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktPn">(</span><span
+                  class="RktSym">compound-statement</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktPn">(</span><span
+                  class="RktSym">compound-statement32</span><span class="hspace"> </span><span
+                  class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace"> </span><span
+                  class="RktSym">statement?</span><span class="RktPn">)</span><span class="RktPn">)</span><span
+                  class="RktPn">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktSym">...</span><span class="RktPn">)</span></td>
+            </tr>
+          </table>
+        </blockquote>
+      </blockquote>
+      <p>简单交互为：</p>
+      <blockquote class="EoplCodeInset">
+        <table cellspacing="0" cellpadding="0" class="SVerbatim">
+          <tr>
+            <td>
+              <p><span class="stt">> (define scan&parse2</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">    </span><span class="stt">(sllgen:make-string-parser
+                  scanner-spec-a grammar-a2))</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace"> </span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt">> (scan&parse2 "{x := foo; y := bar; z := uu;}")</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt">(compound-statement</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">  </span><span class="stt">((assign-statement x (var-exp
+                  foo))</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">   </span><span class="stt">(assign-statement y (var-exp
+                  bar))</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">   </span><span class="stt">(assign-statement z (var-exp
+                  uu))))</span></p>
+            </td>
+          </tr>
+        </table>
+      </blockquote>
+      <p>我们可以把非终结符序列放入 <span class="stt">arbno</span> 中。这时，节点中会有多个字段，每个对应一个
+        非终结符；每个字段包含一个语法树列表。例如：</p>
+      <blockquote class="EoplCodeInset">
+        <blockquote class="SCodeFlow">
+          <table cellspacing="0" cellpadding="0" class="RktBlk">
+            <tr>
+              <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                  class="RktSym">grammar-a3</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktVal">'</span><span class="RktVal">(</span><span
+                  class="RktVal">(</span><span class="RktVal">expression</span><span class="hspace"> </span><span
+                  class="RktVal">(</span><span class="RktVal">identifier</span><span class="RktVal">)</span><span
+                  class="hspace"> </span><span class="RktVal">var-exp</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktVal">(</span><span class="RktVal">expression</span>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">(</span><span class="RktVal">"let"</span><span
+                  class="hspace"> </span><span class="RktVal">(</span><span class="RktVal">arbno</span><span
+                  class="hspace"> </span><span class="RktVal">identifier</span><span class="hspace"> </span><span
+                  class="RktVal">"="</span><span class="hspace"> </span><span class="RktVal">expression</span><span
+                  class="RktVal">)</span><span class="hspace"> </span><span class="RktVal">"in"</span><span
+                  class="hspace"> </span><span class="RktVal">expression</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">let-exp</span><span
+                  class="RktVal">)</span><span class="RktVal">)</span><span class="RktPn">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace"> </span></td>
+            </tr>
+            <tr>
+              <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                  class="RktSym">scan&parse3</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktPn">(</span><span
+                  class="RktSym">sllgen:make-string-parser</span><span class="hspace"> </span><span
+                  class="RktSym">scanner-spec-a</span><span class="hspace"> </span><span
+                  class="RktSym">grammar-a3</span><span class="RktPn">)</span><span class="RktPn">)</span></td>
+            </tr>
+          </table>
+        </blockquote>
+      </blockquote>
+      <p>生成数据类型</p>
+      <blockquote class="EoplCodeInset">
+        <blockquote class="SCodeFlow">
+          <table cellspacing="0" cellpadding="0" class="RktBlk">
+            <tr>
+              <td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span
+                  class="hspace"> </span><span class="RktSym">expression</span><span class="hspace"> </span><span
+                  class="RktSym">expression?</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktPn">(</span><span class="RktSym">var-exp</span><span
+                  class="hspace"> </span><span class="RktPn">(</span><span class="RktSym">var-exp4</span><span
+                  class="hspace"> </span><span class="RktSym">symbol?</span><span class="RktPn">)</span><span
+                  class="RktPn">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktPn">(</span><span class="RktSym">let-exp</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">let-exp9</span><span
+                  class="hspace"> </span><span class="RktPn">(</span><span class="RktSym">list-of</span><span
+                  class="hspace"> </span><span class="RktSym">symbol?</span><span class="RktPn">)</span><span
+                  class="RktPn">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">let-exp7</span><span
+                  class="hspace"> </span><span class="RktPn">(</span><span class="RktSym">list-of</span><span
+                  class="hspace"> </span><span class="RktSym">expression?</span><span class="RktPn">)</span><span
+                  class="RktPn">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktPn">(</span><span class="RktSym">let-exp8</span><span
+                  class="hspace"> </span><span class="RktSym">expression?</span><span class="RktPn">)</span><span
+                  class="RktPn">)</span><span class="RktPn">)</span></td>
+            </tr>
+          </table>
+        </blockquote>
+      </blockquote>
+      <p>这里是运用该语法的例子：</p>
+      <blockquote class="SubFlow">
+        <blockquote class="EoplCodeInset">
+          <table cellspacing="0" cellpadding="0" class="SVerbatim">
+            <tr>
+              <td>
+                <p><span class="stt">> (scan&parse3 "let x = y u = v in z")</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt">(let-exp</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt"></span><span class="hspace">  </span><span class="stt">(x u)</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt"></span><span class="hspace">  </span><span class="stt">((var-exp y) (var-exp
+                    v))</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt"></span><span class="hspace">  </span><span class="stt">(var-exp z))</span></p>
+              </td>
+            </tr>
+          </table>
+        </blockquote>
+        <p>定义 <span class="stt">(arbno identifier "=" expression)</span> 生成两个列表：标识符列表和表达式列表。
+          这很方便，因为我们的解释器能直接从中取出一部分表达式。</p>
+      </blockquote>
+      <p>对某些语言的语法，在列表中只用分隔符，而不用结束符会更方便。这十分常见，因此
+        SLLGEN 内置这种操作。我们可以写</p>
+      <blockquote class="EoplCodeInset">
+        <blockquote class="SCodeFlow">
+          <table cellspacing="0" cellpadding="0" class="RktBlk">
+            <tr>
+              <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                  class="RktSym">grammar-a4</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktVal">'</span><span class="RktVal">(</span><span
+                  class="RktVal">(</span><span class="RktVal">statement</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">(</span><span class="RktVal">"{"</span><span
+                  class="hspace"> </span><span class="RktVal">(</span><span class="RktVal">separated-list</span><span
+                  class="hspace"> </span><span class="RktVal">statement</span><span class="hspace"> </span><span
+                  class="RktVal">";"</span><span class="RktVal">)</span><span class="hspace"> </span><span
+                  class="RktVal">"}"</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">compound-statement</span><span
+                  class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">     </span><span class="RktVal">...</span><span class="RktVal">)</span><span
+                  class="RktPn">)</span></td>
+            </tr>
+          </table>
+        </blockquote>
+      </blockquote>
+      <p>它生成数据类型</p>
+      <blockquote class="EoplCodeInset">
+        <blockquote class="SCodeFlow">
+          <table cellspacing="0" cellpadding="0" class="RktBlk">
+            <tr>
+              <td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span
+                  class="hspace"> </span><span class="RktSym">statement</span><span class="hspace"> </span><span
+                  class="RktSym">statement?</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktPn">(</span><span
+                  class="RktSym">compound-statement</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktPn">(</span><span
+                  class="RktSym">compound-statement103</span><span class="hspace"> </span><span
+                  class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace"> </span><span
+                  class="RktSym">statement?</span><span class="RktPn">)</span><span class="RktPn">)</span><span
+                  class="RktPn">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktSym">...</span><span class="RktPn">)</span></td>
+            </tr>
+          </table>
+        </blockquote>
+      </blockquote>
+      <p>这是简单交互的例子：</p>
+      <blockquote class="SubFlow">
+        <blockquote class="EoplCodeInset">
+          <table cellspacing="0" cellpadding="0" class="SVerbatim">
+            <tr>
+              <td>
+                <p><span class="stt">> (define scan&parse4</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt"></span><span class="hspace">    </span><span class="stt">(sllgen:make-string-parser
+                    scanner-spec-a grammar-a4))</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt">> (scan&parse4 "{}")</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt">(compound-statement ())</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt">> (scan&parse4 "{x:= y; u := v ; z := t}")</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt">(compound-statement</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt"></span><span class="hspace">  </span><span class="stt">((assign-statement x
+                    (var-exp y))</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt"></span><span class="hspace">   </span><span class="stt">(assign-statement u
+                    (var-exp v))</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt"></span><span class="hspace">   </span><span class="stt">(assign-statement z
+                    (var-exp t))))</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt">> (scan&parse4 "{x:= y; u := v ; z := t ;}")</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt">Error in parsing: at line 1</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><span class="stt">Nonterminal <seplist3> can’t begin with string "}"</span></p>
+              </td>
+            </tr>
+          </table>
+        </blockquote>
+        <p>在本例中，输入字符串结尾有一个分号，与语法不符，所以报错。</p>
+      </blockquote>
+      <p>类似于 <span class="stt">arbno</span>，我们可以在 <span class="stt">separated-list</span> 关键字中放置任意非终结符序列。
+        这时，节点中会有多个字段，每个对应一个非终结符；每个字段包含一个语法树列表。这和
+        <span class="stt">arbno</span> 生成的数据完全相同；不同的只是具体语法。
+      </p>
+      <p>我们偶尔会嵌套 <span class="stt">arbno</span> 和 <span class="stt">separated-list</span>。<span class="stt">arbno</span>
+        内的非终结符生成一
+        个列表，所以 <span class="stt">arbno</span> 内的 <span class="stt">arbno</span> 内的非终结符生成列表的列表。</p>
+      <p>举个例子，考虑与 <span class="stt">grammar-a4</span> 类似的 <span class="stt">compound-statement</span>，但它支持多赋值：</p>
+      <blockquote class="EoplCodeInset">
+        <blockquote class="SCodeFlow">
+          <table cellspacing="0" cellpadding="0" class="RktBlk">
+            <tr>
+              <td><span class="RktPn">(</span><span class="RktSym">define</span><span class="hspace"> </span><span
+                  class="RktSym">grammar-a5</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktVal">'</span><span class="RktVal">(</span><span
+                  class="RktVal">(</span><span class="RktVal">statement</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">(</span><span class="RktVal">"{"</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">        </span><span class="RktVal">(</span><span
+                  class="RktVal">separated-list</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">          </span><span class="RktVal">(</span><span
+                  class="RktVal">separated-list</span><span class="hspace"> </span><span
+                  class="RktVal">identifier</span><span class="hspace"> </span><span class="RktVal">","</span><span
+                  class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">          </span><span class="RktVal">":="</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">          </span><span class="RktVal">(</span><span
+                  class="RktVal">separated-list</span><span class="hspace"> </span><span
+                  class="RktVal">expression</span><span class="hspace"> </span><span class="RktVal">","</span><span
+                  class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">          </span><span class="RktVal">";"</span><span class="RktVal">)</span>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="hspace">        </span><span class="RktVal">"}"</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">      </span><span class="RktVal">compound-statement</span><span
+                  class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">     </span><span class="RktVal">(</span><span
+                  class="RktVal">expression</span><span class="hspace"> </span><span class="RktVal">(</span><span
+                  class="RktVal">number</span><span class="RktVal">)</span><span class="hspace"> </span><span
+                  class="RktVal">lit-exp</span><span class="RktVal">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">     </span><span class="RktVal">(</span><span
+                  class="RktVal">expression</span><span class="hspace"> </span><span class="RktVal">(</span><span
+                  class="RktVal">identifier</span><span class="RktVal">)</span><span class="hspace"> </span><span
+                  class="RktVal">var-exp</span><span class="RktVal">)</span><span class="RktVal">)</span><span
+                  class="RktPn">)</span></td>
+            </tr>
+          </table>
+        </blockquote>
+      </blockquote>
+      <blockquote class="EoplCodeInset">
+        <table cellspacing="0" cellpadding="0" class="SVerbatim">
+          <tr>
+            <td>
+              <p><span class="stt">> (define scan&parse5</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">    </span><span class="stt">(sllgen:make-string-parser
+                  scanner-spec-a grammar-a5))</span></p>
+            </td>
+          </tr>
+        </table>
+      </blockquote>
+      <p>它为 <span class="stt">statement</span> 生成如下数据类型：</p>
+      <blockquote class="EoplCodeInset">
+        <blockquote class="SCodeFlow">
+          <table cellspacing="0" cellpadding="0" class="RktBlk">
+            <tr>
+              <td><span class="RktPn">(</span><span class="RktSym">define-datatype</span><span
+                  class="hspace"> </span><span class="RktSym">statement</span><span class="hspace"> </span><span
+                  class="RktSym">statement?</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">  </span><span class="RktPn">(</span><span
+                  class="RktSym">compound-statement</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktPn">(</span><span
+                  class="RktSym">compound-statement4</span><span class="hspace"> </span><span
+                  class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace"> </span><span
+                  class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace"> </span><span
+                  class="RktSym">symbol?</span><span class="RktPn">)</span><span class="RktPn">)</span><span
+                  class="RktPn">)</span></td>
+            </tr>
+            <tr>
+              <td><span class="hspace">    </span><span class="RktPn">(</span><span
+                  class="RktSym">compound-statement3</span><span class="hspace"> </span><span
+                  class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace"> </span><span
+                  class="RktPn">(</span><span class="RktSym">list-of</span><span class="hspace"> </span><span
+                  class="RktSym">expression?</span><span class="RktPn">)</span><span class="RktPn">)</span><span
+                  class="RktPn">)</span><span class="RktPn">)</span><span class="RktPn">)</span></td>
+            </tr>
+          </table>
+        </blockquote>
+      </blockquote>
+      <p>一般的交互如下：</p>
+      <blockquote class="EoplCodeInset">
+        <table cellspacing="0" cellpadding="0" class="SVerbatim">
+          <tr>
+            <td>
+              <p><span class="stt">> (scan&parse5 "{x,y := u,v ; z := 4; t1, t2 := 5, 6}")</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt">(compound-statement</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">  </span><span class="stt">((x y) (z) (t1 t2))</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">  </span><span class="stt">(((var-exp u) (var-exp
+                  v))</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">    </span><span class="stt">((lit-exp 4))</span></p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p><span class="stt"></span><span class="hspace">    </span><span class="stt">((lit-exp 5) (lit-exp
+                  6))))</span></p>
+            </td>
+          </tr>
+        </table>
+      </blockquote>
+      <p>这里，<span class="stt">compound-statement</span> 有两个字段：标识符列表的列表，对应的表达式列表的列
+        表。本例中，我们用 <span class="stt">separated-list</span> 代替了 <span class="stt">arbno</span>，但是 <span
+          class="stt">arbno</span> 也会生
+        成同样的数据。
+        <a name="(idx._(gentag._1741))"></a>
+      </p>
+      <blockquote class="EoplExercise">
+        <p><a name="(elem._ex.B..1)"></a><span class="texMathInline">\textnormal{[}{\star}\textnormal{]}</span><span
+            class="hspace"> </span>下列语法按照通常的算术操作符优先级，定义了算术操作表达式：</p>
+        <p><span class="Iidentity">\begin{align*} \mathit{Arith\mbox{-}expr} &::= \mathit{Arith\mbox{-}term} \
+            \{\mathit{Additive\mbox{-}op}\ \mathit{Arith\mbox{-}term}\}^{*} \\[-3pt]
+            \mathit{Arith\mbox{-}term} &::= \mathit{Arith\mbox{-}factor} \ \{\mathit{Multiplicative\mbox{-}op}\
+            \mathit{Arith\mbox{-}factor}\}^{*} \\[-3pt]
+            \mathit{Arith\mbox{-}factor} &::= \mathit{Number} \\[-3pt]
+            &::= <span class="stt">( </span><span class="Iidentity">\mathit{Arith\mbox{-}expr}</span><span class="stt">
+              )</span> \\[-3pt]
+            \mathit{Additive\mbox{-}op} &::= <span class="stt">+</span> \mid <span class="stt">-</span> \\[-3pt]
+            \mathit{Multiplicative\mbox{-}op} &::= <span class="stt">*</span> \mid <span
+              class="stt">/</span>\end{align*}</span></p>
+        <p>这套语法是说，每个算术表达式都是非空项序列的和；每一项都是非空因数序列的生成式；
+          每个因数是一个常数或者括号表达式。</p>
+        <p>用 SLLGEN 写出词法规范和语法，根据这套语法进行扫描和解析。验证这套语法能正确处理
+          优先级，那么，<span class="stt">3+2*66-5</span> 能正确分组为 <span class="texMathInline">3 + (2 \times 66) - 5</span>。</p>
+      </blockquote>
+      <blockquote class="EoplExercise">
+        <p><a name="(elem._ex.B..2)"></a><span
+            class="texMathInline">\textnormal{[}{\star}{\star}\textnormal{]}</span><span
+            class="hspace"> </span>上面的语法为什么不能写成 <span class="stt">separated-list</span>？</p>
+      </blockquote>
+      <blockquote class="EoplExercise">
+        <p><a name="(elem._ex.B..3)"></a><span
+            class="texMathInline">\textnormal{[}{\star}{\star}\textnormal{]}</span><span
+            class="hspace"> </span>定义一个解释器，取<span class="EoplExerciseRef"></span> 中解析器生成的抽象语法树，将其当作算术表
+          达式求值。解析器处理通常的算术操作优先级；但解释器要处理关联性，即，确保同一优先
+          级（比如加和减）的操作从左向右进行。由于这些表达式中没有变量，解释器不需要取环境
+          参数。</p>
+      </blockquote>
+      <blockquote class="EoplExercise">
+        <p><a name="(elem._ex.B..4)"></a><span
+            class="texMathInline">\textnormal{[}{\star}{\star}\textnormal{]}</span><span
+            class="hspace"> </span>扩展前一道练习中的语言和解释器，加入变量。这个新解释器需要环境参数。</p>
+      </blockquote>
+      <blockquote class="EoplExercise">
+        <p><a name="(elem._ex.B..5)"></a><span class="texMathInline">\textnormal{[}{\star}\textnormal{]}</span><span
+            class="hspace"> </span>给语言和解释器添加单参数操作取反，使之能正确处理输入 <span class="stt">3*-2</span>。</p>
+      </blockquote>
+      <div class="navsetbottom"><span class="navleft">
+          <div class="nosearchform"></div>  <span class="tocsettoggle">  <a href="javascript:void(0);"
+              title="show/hide table of contents" onclick="TocsetToggle();">contents</a></span>
+        </span><span class="navright">  <a href="further-reading.html" title="backward to " 10 扩展阅读"" data-pltdoc="x">←
+            prev</a>  <a href="index.html" title="up to " 编程语言要素"" data-pltdoc="x">up</a>  <a href="bib.html"
+            title="forward to " 参考书目"" data-pltdoc="x">next →</a></span> </div>
+    </div>
+  </div>
+  <div id="contextindicator"> </div>
+</body>
+
+</html>
